@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NewsAggregator.Application.Interfaces
+namespace NewsAggregator.Domain.Interfaces
 {
     public interface INewsRepository
     {
         Task<List<Article>> GetAllAsync();
         Task<Article?> GetNewsByIdAsync(string id);
         Task AddAsync(Article news);
+
         //Task UpdateAsync(Article news);
         //Task DeleteAsync(string id);
     }

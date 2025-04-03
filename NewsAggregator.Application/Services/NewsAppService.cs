@@ -1,18 +1,14 @@
 ﻿using NewsAggregator.Application.Interfaces;
+using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NewsAggregator.Application.Services
 {
-    public class NewsService
+    public class NewsAppService: INewsAppService
     {
         private readonly INewsRepository _newsRepository;
 
-        public NewsService(INewsRepository newsRepository)
+        public NewsAppService(INewsRepository newsRepository)
         {
             _newsRepository = newsRepository;
         }

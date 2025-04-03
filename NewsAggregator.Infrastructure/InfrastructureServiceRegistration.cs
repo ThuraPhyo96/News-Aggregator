@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using NewsAggregator.Infrastructure.Repositories;
-using NewsAggregator.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
+using NewsAggregator.Domain.Interfaces;
+using NewsAggregator.Infrastructure.HttpClients;
 
 namespace NewsAggregator.Infrastructure
 {
@@ -18,6 +19,9 @@ namespace NewsAggregator.Infrastructure
 
             services.AddSingleton(database);
             services.AddScoped<INewsRepository, NewsRepository>();
+
+            // Register NewsApiService
+            services.AddHttpClient<NewsApiClient>();
 
             return services;
         }

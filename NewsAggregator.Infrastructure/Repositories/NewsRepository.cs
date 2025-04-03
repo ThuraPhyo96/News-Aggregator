@@ -1,5 +1,5 @@
 ﻿using MongoDB.Driver;
-using NewsAggregator.Application.Interfaces;
+using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Domain.Models;
 using NewsAggregator.Infrastructure.Persistence.MongoDb;
 
@@ -28,8 +28,15 @@ namespace NewsAggregator.Infrastructure.Repositories
 
         public async Task AddAsync(Article news)
         {
-            var newsDoc = ArticleDocument.FromDomain(news);
-            await _articelCollection.InsertOneAsync(newsDoc);
+            try
+            {
+                var newsDoc = ArticleDocument.FromDomain(news);
+                await _articelCollection.InsertOneAsync(newsDoc);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

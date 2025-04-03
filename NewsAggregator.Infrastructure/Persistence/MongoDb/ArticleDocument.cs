@@ -23,7 +23,6 @@ namespace NewsAggregator.Infrastructure.Persistence.MongoDb
         {
             return new ArticleDocument
             {
-                Id = article.Id,
                 Source = article.Source,
                 Author = article.Author,
                 Title = article.Title,
@@ -38,7 +37,7 @@ namespace NewsAggregator.Infrastructure.Persistence.MongoDb
         // Convert from Mongo Document to Domain Entity
         public Article ToDomain()
         {
-            return new Article(Id, Source, Author, Title, Description, Url, UrlToImage, PublishedAt, Content);
+            return new Article(Source, Author, Title, Description, Url, UrlToImage, PublishedAt, Content);
         }
     }
 }
