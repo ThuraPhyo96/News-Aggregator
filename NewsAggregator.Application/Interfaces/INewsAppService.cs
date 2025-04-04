@@ -1,4 +1,5 @@
-﻿using NewsAggregator.Domain.Models;
+﻿using NewsAggregator.Application.DTOs;
+using NewsAggregator.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace NewsAggregator.Application.Interfaces
 {
     public interface INewsAppService
     {
-        Task<List<Article>> GetAllNews();
+        Task<List<ArticleDto>> GetAllNews();
+        Task<ArticleDto> GetNewsById(string id);
     }
 }

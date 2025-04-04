@@ -36,8 +36,9 @@ namespace NewsAggregator.Domain.Models
         }
 
         [JsonConstructor]
-        public Article(Source? source, string? author, string? title, string? description, string? url, string? urlToImage, DateTime? publishedAt, string? content)
+        public Article(string id, Source? source, string? author, string? title, string? description, string? url, string? urlToImage, DateTime? publishedAt, string? content)
         {
+            Id = id;
             Source = source is null ? new Source() : source;
             Author = string.IsNullOrEmpty(author) ? "Unknown Author" : author;
             Title = string.IsNullOrEmpty(title) ? "Unknown Title" : title;

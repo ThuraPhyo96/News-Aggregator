@@ -1,10 +1,11 @@
-﻿using NewsAggregator.Application.Interfaces;
+﻿using NewsAggregator.Application.DTOs;
+using NewsAggregator.Application.Interfaces;
+using NewsAggregator.Application.Mappers;
 using NewsAggregator.Domain.Interfaces;
-using NewsAggregator.Domain.Models;
 
 namespace NewsAggregator.Application.Services
 {
-    public class NewsAppService: INewsAppService
+    public class NewsAppService : INewsAppService
     {
         private readonly INewsRepository _newsRepository;
 
@@ -13,9 +14,18 @@ namespace NewsAggregator.Application.Services
             _newsRepository = newsRepository;
         }
 
-        public async Task<List<Article>> GetAllNews()
+        public async Task<List<ArticleDto>> GetAllNews()
         {
-            return await _newsRepository.GetAllAsync();
+            var objs = await _newsRepository.GetAllAsync();
+            return ArticleMapper.ToDtoList(objs);
+        }
+
+        public async Task<ArticleDto> GetNewsById(string id)
+        {
+            var obj = await _newsRepository.GetNewsByIdAsync(id);
+            if (obj is null) return new ArticleDto();
+
+            return ArticleMapper.ToDto(obj!)!;
         }
     }
 }
