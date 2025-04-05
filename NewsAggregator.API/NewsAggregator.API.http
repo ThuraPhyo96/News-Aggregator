@@ -1,6 +1,25 @@
-@NewsAggregator.API_HostAddress = http://localhost:5105
+@NewsAggregator.API_HostAddress = https://localhost:44362
 
-GET {{NewsAggregator.API_HostAddress}}/weatherforecast/
+# To test API in visual studio directly, no depend on Postman or Swagger 
+GET {{NewsAggregator.API_HostAddress}}/api/news
+Accept: application/json
+### 
+
+POST {{NewsAggregator.API_HostAddress}}/api/news
+Content-Type: application/json
 Accept: application/json
 
+{
+    "source": {
+      "id": "938495",
+      "name": "Myanmar Now"
+    },
+    "author": "Min Zin Maw",
+    "title": "Air Strike",
+    "description": "Milatory attacked the air attacking.",
+    "url": "",
+    "urlToImage": "",
+    "publishedAt": "2025-04-05",
+    "content": "Milatory attacked the air attacking."
+}
 ###

@@ -9,5 +9,16 @@ namespace NewsAggregator.Domain.Models
 
         [JsonPropertyName("name")]
         public string? Name { get; private set; }
+
+        public Source()
+        {
+                
+        }
+
+        public Source(string? id, string? name)
+        {
+            Id = id;
+            Name = name;
+        }
     }
 }

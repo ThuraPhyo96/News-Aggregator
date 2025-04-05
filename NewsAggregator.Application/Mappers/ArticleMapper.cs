@@ -33,5 +33,35 @@ namespace NewsAggregator.Application.Mappers
 
             return articles.Select(ToDto).ToList()!;
         }
+
+        public static Article? ToEntity(CreateArticleDto article)
+        {
+            if (article == null) return null;
+
+            return new Article(
+                SourceMapper.ToEntity(article.Source!),
+                article.Author,
+                article.Title,
+                article.Description,
+                article.Url,
+                article.UrlToImage,
+                article.PublishedAt,
+                article.Content);
+        }
+
+        public static Article? ToEntity(UpdateArticleDto article)
+        {
+            if (article == null) return null;
+
+            return new Article(
+                SourceMapper.ToEntity(article.Source!),
+                article.Author,
+                article.Title,
+                article.Description,
+                article.Url,
+                article.UrlToImage,
+                article.PublishedAt,
+                article.Content);
+        }
     }
 }

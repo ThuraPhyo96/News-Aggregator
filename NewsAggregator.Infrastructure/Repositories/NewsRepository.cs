@@ -26,16 +26,58 @@ namespace NewsAggregator.Infrastructure.Repositories
             return article.ToDomain();
         }
 
-        public async Task AddAsync(Article news)
+        public async Task<Article> AddAsync(Article news)
         {
             try
             {
                 var newsDoc = ArticleDocument.FromDomain(news);
                 await _articelCollection.InsertOneAsync(newsDoc);
+                return newsDoc.ToDomain();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
+            }
+        }
+
+        public async Task<long> UpdateAsync(string id, Article article)
+        {
+            try
+            {
+                var existingObj = await _articelCollection.Find(n => n.Id == id).FirstOrDefaultAsync();
+                if (existingObj is null)
+                    return 0;
+
+                var updateDoc = ArticleDocument.FromDomain(article);
+                updateDoc.Id = id;
+
+                var result = await _articelCollection.ReplaceOneAsync(
+                    doc => doc.Id == id,
+                    updateDoc
+                );
+
+                return result.ModifiedCount;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<long> DeleteAsync(string id)
+        {
+            try
+            {
+                var existingObj = await _articelCollection.Find(n => n.Id == id).FirstOrDefaultAsync();
+                if (existingObj is null)
+                    return 0;
+
+                var result = await _articelCollection.DeleteOneAsync(doc => doc.Id == id);
+                return result.DeletedCount;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

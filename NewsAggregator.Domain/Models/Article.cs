@@ -48,5 +48,17 @@ namespace NewsAggregator.Domain.Models
             PublishedAt = publishedAt;
             Content = string.IsNullOrEmpty(content) ? "Unknown Content" : content;
         }
+
+        public Article(Source? source, string? author, string? title, string? description, string? url, string? urlToImage, DateTime? publishedAt, string? content)
+        {
+            Source = source is null ? new Source() : source;
+            Author = string.IsNullOrEmpty(author) ? "Unknown Author" : author;
+            Title = string.IsNullOrEmpty(title) ? "Unknown Title" : title;
+            Description = string.IsNullOrEmpty(description) ? "Unknown Description" : description;
+            Url = string.IsNullOrEmpty(url) ? "Unknown url" : url;
+            UrlToImage = string.IsNullOrEmpty(urlToImage) ? "Unknown urlToImage" : urlToImage;
+            PublishedAt = publishedAt;
+            Content = string.IsNullOrEmpty(content) ? "Unknown Content" : content;
+        }
     }
 }

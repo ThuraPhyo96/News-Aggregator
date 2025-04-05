@@ -1,9 +1,4 @@
 ﻿using NewsAggregator.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NewsAggregator.Domain.Interfaces
 {
@@ -11,9 +6,8 @@ namespace NewsAggregator.Domain.Interfaces
     {
         Task<List<Article>> GetAllAsync();
         Task<Article?> GetNewsByIdAsync(string id);
-        Task AddAsync(Article news);
-
-        //Task UpdateAsync(Article news);
-        //Task DeleteAsync(string id);
+        Task<Article> AddAsync(Article news);
+        Task<long> UpdateAsync(string id, Article article);
+        Task<long> DeleteAsync(string id);
     }
 }

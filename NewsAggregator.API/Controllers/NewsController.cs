@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NewsAggregator.Application.DTOs;
 using NewsAggregator.Application.Interfaces;
 
 namespace NewsAggregator.API.Controllers
@@ -50,28 +51,39 @@ namespace NewsAggregator.API.Controllers
             }
         }
 
-        //// POST /api/news
-        //[HttpPost]
-        //public async Task<IActionResult> CreateNews([FromBody] News news)
-        //{
-        //    // Logic to create a new news item
-        //    return CreatedAtAction(nameof(GetNewsById), new { id = news.Id }, news);
-        //}
+        // POST /api/news
+        [HttpPost]
+        public async Task<IActionResult> CreateNews([FromBody] CreateArticleDto article)
+        {
+            var result = await _newsAppService.CreateArticle(article);
 
-        //// PUT /api/news/{id}
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> UpdateNews(int id, [FromBody] News news)
-        //{
-        //    // Logic to update an existing news item
-        //    return NoContent();  // Successful update, no content to return
-        //}
+            if (!result.Success)
+                return BadRequest(result.ErrorMessage);
 
-        //// DELETE /api/news/{id}
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteNews(int id)
-        //{
-        //    // Logic to delete a news item
-        //    return NoContent();  // Successfully deleted
-        //}
+            return CreatedAtAction(nameof(GetNewsById), new { id = result.Data!.Id }, result);
+        }
+
+        //PUT /api/news/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateNews(string id, [FromBody] UpdateArticleDto article)
+        {
+            var result = await _newsAppService.UpdateArticle(id, article);
+
+            if (!result.Success)
+                return BadRequest(result.ErrorMessage);
+
+            return NoContent();  // Successful update, no content to return
+        }
+
+        // DELETE /api/news/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteNews(string id)
+        {
+            var result = await _newsAppService.DeleteArticle(id);
+            if (!result.Success)
+                return BadRequest(result.ErrorMessage);
+
+            return NoContent();  // Successfully deleted
+        }
     }
 }

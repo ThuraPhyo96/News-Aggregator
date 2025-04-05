@@ -1,10 +1,5 @@
-﻿using NewsAggregator.Application.DTOs;
-using NewsAggregator.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NewsAggregator.Application.Common;
+using NewsAggregator.Application.DTOs;
 
 namespace NewsAggregator.Application.Interfaces
 {
@@ -12,5 +7,8 @@ namespace NewsAggregator.Application.Interfaces
     {
         Task<List<ArticleDto>> GetAllNews();
         Task<ArticleDto> GetNewsById(string id);
+        Task<Result<ArticleDto>> CreateArticle(CreateArticleDto input);
+        Task<Result<long>> UpdateArticle(string id, UpdateArticleDto input);
+        Task<Result<long>> DeleteArticle(string id);
     }
 }
