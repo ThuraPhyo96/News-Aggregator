@@ -1,4 +1,5 @@
-﻿using NewsAggregator.Application.Services;
+﻿using Microsoft.Extensions.Logging;
+using NewsAggregator.Application.Services;
 using NewsAggregator.Domain.Models;
 using NewsAggregator.Infrastructure.ExternalModels;
 using System.Text.Json;
@@ -9,11 +10,13 @@ namespace NewsAggregator.Infrastructure.HttpClients
     {
         private readonly HttpClient _httpClient;
         private readonly NewsStorageAppService _newsStorageService;
+        private readonly ILogger<NewsApiClient> _logger;
 
-        public NewsApiClient(IHttpClientFactory httpClientFactory, NewsStorageAppService newsStorageService)
+        public NewsApiClient(IHttpClientFactory httpClientFactory, NewsStorageAppService newsStorageService, ILogger<NewsApiClient> logger)
         {
             _httpClient = httpClientFactory.CreateClient(nameof(NewsApiClient));
             _newsStorageService = newsStorageService;
+            _logger = logger;
         }
 
         public async Task FetchAndStoreNewsAsync(string q)
@@ -42,18 +45,18 @@ namespace NewsAggregator.Infrastructure.HttpClients
                     if (newsResponse?.Articles != null)
                     {
                         List<Article> articles = newsResponse.Articles;
-                        await _newsStorageService.StoreArticlesAsync(articles);
-                        Console.WriteLine("Articles stored in MongoDB successfully!");
+                        //await _newsStorageService.StoreArticlesAsync(articles);
+                        _logger.LogInformation("Successfully fetched news: {Length} bytes", json.Length);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Failed to fetch news. Status Code: {response.StatusCode}");
+                    _logger.LogWarning("Failed to fetch news. StatusCode: {StatusCode}", response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error fetching news: {ex.Message}");
+                _logger.LogError(ex, "Exception occurred while fetching news");
             }
         }
     }

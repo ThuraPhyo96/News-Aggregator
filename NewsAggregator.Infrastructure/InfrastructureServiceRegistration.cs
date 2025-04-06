@@ -4,6 +4,7 @@ using NewsAggregator.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Infrastructure.HttpClients;
+using Microsoft.Extensions.Logging;
 
 namespace NewsAggregator.Infrastructure
 {
@@ -29,8 +30,7 @@ namespace NewsAggregator.Infrastructure
                 client.DefaultRequestHeaders.Add("X-Api-Key", configuration["NewsApi:ApiKey"]);
                 client.DefaultRequestHeaders.Add("User-Agent", configuration["NewsApi:UserAgent"]);
             })
-            .AddPolicyHandler(HttpClientPolicies.GetResiliencePolicy()
-            );
+            .AddPolicyHandler((services, _) => HttpClientPolicies.GetResiliencePolicy<NewsApiClient>(services.GetRequiredService<ILogger<NewsApiClient>>()));
 
             // Register the client class for DI
             services.AddScoped<NewsApiClient>();
