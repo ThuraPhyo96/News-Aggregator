@@ -10,9 +10,9 @@ namespace NewsAggregator.Infrastructure.HttpClients
         private readonly HttpClient _httpClient;
         private readonly NewsStorageAppService _newsStorageService;
 
-        public NewsApiClient(HttpClient httpClient, NewsStorageAppService newsStorageService)
+        public NewsApiClient(IHttpClientFactory httpClientFactory, NewsStorageAppService newsStorageService)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient(nameof(NewsApiClient));
             _newsStorageService = newsStorageService;
         }
 
@@ -20,14 +20,10 @@ namespace NewsAggregator.Infrastructure.HttpClients
         {
             try
             {
-                string url = "https://newsapi.org/v2/everything?q=" + q;
+                string url = "/v2/everything?q=" + q;
 
                 // Create a request object
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
-
-                // Add API Key Header
-                request.Headers.Add("X-Api-Key", "d87a2248207c4271a8bdd70cd91fb2e4");
-                request.Headers.Add("User-Agent", "NewsAggregatorAPI/1.0");
 
                 // Send the request
                 HttpResponseMessage response = await _httpClient.SendAsync(request);

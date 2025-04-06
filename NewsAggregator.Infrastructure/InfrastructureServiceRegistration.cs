@@ -20,8 +20,20 @@ namespace NewsAggregator.Infrastructure
             services.AddSingleton(database);
             services.AddScoped<INewsRepository, NewsRepository>();
 
-            // Register NewsApiService
-            services.AddHttpClient<NewsApiClient>();
+            var newApiBaseUrl = configuration["NewsApi:BaseUrl"];
+
+            // Register named HttpClient
+            services.AddHttpClient(nameof(NewsApiClient), client =>
+            {
+                client.BaseAddress = new Uri(newApiBaseUrl!);
+                client.DefaultRequestHeaders.Add("X-Api-Key", configuration["NewsApi:ApiKey"]);
+                client.DefaultRequestHeaders.Add("User-Agent", configuration["NewsApi:UserAgent"]);
+            })
+            .AddPolicyHandler(HttpClientPolicies.GetResiliencePolicy()
+            );
+
+            // Register the client class for DI
+            services.AddScoped<NewsApiClient>();
 
             return services;
         }
