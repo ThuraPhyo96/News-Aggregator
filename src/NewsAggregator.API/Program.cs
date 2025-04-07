@@ -46,8 +46,8 @@ try
 
     using (var scope = app.Services.CreateScope())
     {
-        var newsService = scope.ServiceProvider.GetRequiredService<NewsApiClient>();
-        await newsService.FetchAndStoreNewsAsync(q: "bitcoin");
+        //var newsService = scope.ServiceProvider.GetRequiredService<NewsApiClient>();
+        //await newsService.FetchAndStoreNewsAsync(q: "bitcoin");
     }
 
     // Configure the HTTP request pipeline.
