@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NewsAggregator.Application.Common;
 using NewsAggregator.Application.DTOs;
 using NewsAggregator.Application.Interfaces;
 
@@ -42,8 +43,24 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                var article = await _newsAppService.GetNewsById(id);
-                return Ok(article);
+                var result = await _newsAppService.GetNewsById(id);
+
+                if (!result.Success)
+                {
+                    if (result.ErrorMessage?.Contains("Invalid ID format") == true)
+                    {
+                        return BadRequest(result.ErrorMessage);
+                    }
+
+                    if (result.ErrorMessage?.Contains("Not found!") == true)
+                    {
+                        return NotFound(result.ErrorMessage);
+                    }
+
+                    return BadRequest(result.ErrorMessage);
+                }
+
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {

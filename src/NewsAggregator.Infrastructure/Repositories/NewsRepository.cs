@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Domain.Models;
 using NewsAggregator.Infrastructure.Persistence.MongoDb;
@@ -22,8 +23,18 @@ namespace NewsAggregator.Infrastructure.Repositories
 
         public async Task<Article?> GetNewsByIdAsync(string id)
         {
-            var article = await _articelCollection.Find(n => n.Id == id).FirstOrDefaultAsync();
-            return article.ToDomain();
+            try
+            {
+                var article = await _articelCollection.Find(n => n.Id == id).FirstOrDefaultAsync();
+                if (article is null)
+                    return null;
+
+                return article.ToDomain();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<Article> AddAsync(Article news)

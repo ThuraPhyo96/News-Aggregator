@@ -1,8 +1,10 @@
 ﻿using NewsAggregator.Application.Common;
 using NewsAggregator.Application.DTOs;
+using NewsAggregator.Application.Helpers;
 using NewsAggregator.Application.Interfaces;
 using NewsAggregator.Application.Mappers;
 using NewsAggregator.Domain.Interfaces;
+using NewsAggregator.Domain.Models;
 
 namespace NewsAggregator.Application.Services
 {
@@ -21,12 +23,23 @@ namespace NewsAggregator.Application.Services
             return ArticleMapper.ToDtoList(objs);
         }
 
-        public async Task<ArticleDto> GetNewsById(string id)
+        public async Task<Result<ArticleDto>> GetNewsById(string id)
         {
-            var obj = await _newsRepository.GetNewsByIdAsync(id);
-            if (obj is null) return new ArticleDto();
+            try
+            {
+                if (!IdValidationHelper.IsValidHexadecimalId(id))
+                    return Result<ArticleDto>.Fail("Invalid ID format.");
 
-            return ArticleMapper.ToDto(obj!)!;
+                var obj = await _newsRepository.GetNewsByIdAsync(id);
+                if (obj is null)
+                    return Result<ArticleDto>.Fail("Not found!");
+
+                return Result<ArticleDto>.Ok(ArticleMapper.ToDto(obj!)!);
+            }
+            catch (Exception ex)
+            {
+                return Result<ArticleDto>.Fail($"An error occurred: {ex.Message}");
+            }
         }
 
         public async Task<Result<ArticleDto>> CreateArticle(CreateArticleDto input)
