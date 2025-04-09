@@ -72,12 +72,19 @@ namespace NewsAggregator.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNews([FromBody] CreateArticleDto article)
         {
-            var result = await _newsAppService.CreateArticle(article);
+            try
+            {
+                var result = await _newsAppService.CreateArticle(article);
 
-            if (!result.Success)
-                return BadRequest(result.ErrorMessage);
+                if (!result.Success)
+                    return BadRequest(result.ErrorMessage);
 
-            return CreatedAtAction(nameof(GetNewsById), new { id = result.Data!.Id }, result);
+                return CreatedAtAction(nameof(GetNewsById), new { id = result.Data!.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         //PUT /api/news/{id}

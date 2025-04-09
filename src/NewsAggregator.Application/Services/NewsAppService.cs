@@ -44,16 +44,23 @@ namespace NewsAggregator.Application.Services
 
         public async Task<Result<ArticleDto>> CreateArticle(CreateArticleDto input)
         {
-            var article = ArticleMapper.ToEntity(input);
-            if (article is null)
-                return Result<ArticleDto>.Fail("Invalid article data");
+            try
+            {
+                var article = ArticleMapper.ToEntity(input);
+                if (article is null)
+                    return Result<ArticleDto>.Fail("Invalid article data");
 
-            var returnArticle = await _newsRepository.AddAsync(article);
-            if (returnArticle == null)
-                return Result<ArticleDto>.Fail("Failed to save article");
+                var returnArticle = await _newsRepository.AddAsync(article);
+                if (returnArticle is null)
+                    return Result<ArticleDto>.Fail("Failed to save article");
 
-            var dto = ArticleMapper.ToDto(returnArticle);
-            return Result<ArticleDto>.Ok(dto!);
+                var dto = ArticleMapper.ToDto(returnArticle);
+                return Result<ArticleDto>.Ok(dto!);
+            }
+            catch (Exception ex)
+            {
+                return Result<ArticleDto>.Fail($"An error occurred: {ex.Message}");
+            }
         }
 
         public async Task<Result<long>> UpdateArticle(string id, UpdateArticleDto input)
