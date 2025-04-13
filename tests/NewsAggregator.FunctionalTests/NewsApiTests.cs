@@ -19,6 +19,18 @@ namespace NewsAggregator.FunctionalTests
 
         public NewsApiTests(WebApplicationFactory<Program> factory)
         {
+            factory = new CustomWebAppFactory(services =>
+            {
+                services.RemoveAll<INewsRepository>();
+                services.RemoveAll<NewsApiClient>();
+                services.RemoveAll<INewsAppService>();
+                services.RemoveAll<NewsStorageAppService>();
+
+                services.AddScoped<INewsAppService, NewsAppService>();
+                services.AddScoped<FailingArticleRepository>();
+                services.AddScoped<INewsRepository, InMemoryNewsRepository>();
+            });
+
             _factory = factory;
         }
 
@@ -30,6 +42,9 @@ namespace NewsAggregator.FunctionalTests
 
             // Act
             var response = await client.GetAsync("/api/news");
+
+            //var content = await response.Content.ReadAsStringAsync();
+            //Console.WriteLine(content);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
