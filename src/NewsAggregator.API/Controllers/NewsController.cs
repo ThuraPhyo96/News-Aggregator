@@ -91,23 +91,72 @@ namespace NewsAggregator.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateNews(string id, [FromBody] UpdateArticleDto article)
         {
-            var result = await _newsAppService.UpdateArticle(id, article);
+            try
+            {
+                var result = await _newsAppService.UpdateArticle(id, article);
 
-            if (!result.Success)
-                return BadRequest(result.ErrorMessage);
+                if (!result.Success)
+                {
+                    if (result.ErrorMessage?.Contains("Invalid ID format") == true ||
+                        result.ErrorMessage?.Contains("Invalid article data") == true)
+                    {
+                        return BadRequest(result.ErrorMessage);
+                    }
 
-            return NoContent();  // Successful update, no content to return
+                    if (result.ErrorMessage?.Contains("Not found!") == true)
+                    {
+                        return NotFound(result.ErrorMessage);
+                    }
+
+                    if (result.ErrorMessage?.Contains("Failed to update article") == true)
+                    {
+                        return StatusCode(500, new { error = result.ErrorMessage });
+                    }
+
+                    return BadRequest(result.ErrorMessage);
+                }
+
+                return NoContent();  // Successful update, no content to return
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
 
         // DELETE /api/news/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNews(string id)
         {
-            var result = await _newsAppService.DeleteArticle(id);
-            if (!result.Success)
-                return BadRequest(result.ErrorMessage);
+            try
+            {
+                var result = await _newsAppService.DeleteArticle(id);
+                if (!result.Success)
+                {
+                    if (result.ErrorMessage?.Contains("Invalid ID format") == true)
+                    {
+                        return BadRequest(result.ErrorMessage);
+                    }
 
-            return NoContent();  // Successfully deleted
+                    if (result.ErrorMessage?.Contains("Not found!") == true)
+                    {
+                        return NotFound(result.ErrorMessage);
+                    }
+
+                    if (result.ErrorMessage?.Contains("Failed to delete article") == true)
+                    {
+                        return StatusCode(500, new { error = result.ErrorMessage });
+                    }
+
+                    return BadRequest(result.ErrorMessage);
+                }
+
+                return NoContent();  // Successfully deleted
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
     }
 }

@@ -65,24 +65,52 @@ namespace NewsAggregator.Application.Services
 
         public async Task<Result<long>> UpdateArticle(string id, UpdateArticleDto input)
         {
-            var article = ArticleMapper.ToEntity(input);
-            if (article is null)
-                return Result<long>.Fail("Invalid article data");
+            try
+            {
+                if (!IdValidationHelper.IsValidHexadecimalId(id))
+                    return Result<long>.Fail("Invalid ID format.");
 
-            var updatedCount = await _newsRepository.UpdateAsync(id, article);
-            if (updatedCount == 0)
-                return Result<long>.Fail("Failed to update article");
+                var obj = await _newsRepository.GetNewsByIdAsync(id);
+                if (obj is null)
+                    return Result<long>.Fail("Not found!");
 
-            return Result<long>.Ok(updatedCount);
+                var article = ArticleMapper.ToEntity(input);
+                if (article is null)
+                    return Result<long>.Fail("Invalid article data");
+
+                var updatedCount = await _newsRepository.UpdateAsync(id, article);
+                if (updatedCount == 0)
+                    return Result<long>.Fail("Failed to update article");
+
+                return Result<long>.Ok(updatedCount);
+            }
+            catch (Exception ex)
+            {
+                return Result<long>.Fail($"An error occurred: {ex.Message}");
+            }
         }
 
         public async Task<Result<long>> DeleteArticle(string id)
         {
-            var deleteCount = await _newsRepository.DeleteAsync(id);
-            if (deleteCount == 0)
-                return Result<long>.Fail("Faled to delete article");
+            try
+            {
+                if (!IdValidationHelper.IsValidHexadecimalId(id))
+                    return Result<long>.Fail("Invalid ID format.");
 
-            return Result<long>.Ok(deleteCount);
+                var obj = await _newsRepository.GetNewsByIdAsync(id);
+                if (obj is null)
+                    return Result<long>.Fail("Not found!");
+
+                var deleteCount = await _newsRepository.DeleteAsync(id);
+                if (deleteCount == 0)
+                    return Result<long>.Fail("Failed to delete article");
+
+                return Result<long>.Ok(deleteCount);
+            }
+            catch (Exception ex)
+            {
+                return Result<long>.Fail($"An error occurred: {ex.Message}");
+            }
         }
     }
 }
