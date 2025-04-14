@@ -27,6 +27,9 @@ namespace NewsAggregator.Application.Services
         {
             try
             {
+                if(string.IsNullOrEmpty(id))
+                    return Result<ArticleDto>.Fail("Invalid ID format.");
+
                 if (!IdValidationHelper.IsValidHexadecimalId(id))
                     return Result<ArticleDto>.Fail("Invalid ID format.");
 
