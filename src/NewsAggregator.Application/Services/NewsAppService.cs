@@ -117,6 +117,9 @@ namespace NewsAggregator.Application.Services
         {
             try
             {
+                if (string.IsNullOrEmpty(id))
+                    return Result<long>.Fail("ID cannot be empty or null.");
+
                 if (!IdValidationHelper.IsValidHexadecimalId(id))
                     return Result<long>.Fail("Invalid ID format.");
 

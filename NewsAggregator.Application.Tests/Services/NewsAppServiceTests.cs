@@ -555,5 +555,140 @@ namespace NewsAggregator.Application.Tests.Services
             result.ErrorMessage.Should().Contain("An error occurred");
             result.ErrorMessage.Should().Contain("Database connection failed");
         }
+
+        [Fact]
+        public async Task DeleteArticle_ShouldReturnDeletedCount_WhenValidId()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa816802ff";
+            Article article = new("67eeac692d3c4efa816802ff", new Source("cnn", "CNN"), "John", "Title", "Desc", "url", "img", DateTime.UtcNow, "Content");
+
+            _newsRepoMock
+                .Setup(x => x.GetNewsByIdAsync(id))
+                .ReturnsAsync(article);
+
+            _newsRepoMock
+                .Setup(x => x.DeleteAsync(id))
+                .ReturnsAsync(1);
+
+            // Act
+            var result = await _newsAppService.DeleteArticle(id);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Data!.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task DeleteArticle_ShouldReturnNull_WhenIdIsNull()
+        {
+            // Arrange
+            string id = null!;
+
+            // Act
+            var result = await _newsAppService.DeleteArticle(id);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage!.Should().Be("ID cannot be empty or null.");
+        }
+
+        [Fact]
+        public async Task DeleteArticle_ShouldReturnInvalidIdFormat_WhenInvalidId()
+        {
+            // Arrange
+            string id = "1";
+
+            // Act
+            var result = await _newsAppService.DeleteArticle(id);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage!.Should().Be("Invalid ID format.");
+        }
+
+        [Fact]
+        public async Task DeleteArticle_ShouldReturnNotFound_WhenNotExistingId()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa81680200";
+
+            _newsRepoMock
+              .Setup(x => x.GetNewsByIdAsync(id))
+              .ReturnsAsync((Article?)null);
+
+            // Act
+            var result = await _newsAppService.DeleteArticle(id);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage!.Should().Be("Not found!");
+        }
+
+        [Fact]
+        public async Task DeleteArticle_ShouldReturnFailed_WhenDeleteAsyncFails()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa816802ff";
+
+            Article article = new("67eeac692d3c4efa816802ff", new Source("cnn", "CNN"), "John", "Title", "Desc", "url", "img", DateTime.UtcNow, "Content");
+
+            _newsRepoMock
+                .Setup(x => x.GetNewsByIdAsync(id))
+                .ReturnsAsync(article);
+
+            _newsRepoMock
+                .Setup(x => x.DeleteAsync(id))
+                .ReturnsAsync(0);
+
+            // Act
+            var result = await _newsAppService.DeleteArticle(id);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage.Should().Be("Failed to delete article");
+        }
+
+        [Fact]
+        public async Task DeleteArticle_ShouldReturnFailed_WhenExceptionThrown()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa816802ff";
+
+            UpdateArticleDto updateArticle = new()
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = "Updated John",
+                Title = "Updated Title",
+                Description = "Updated Desc",
+                Url = "Updated url",
+                UrlToImage = "Updated img",
+                PublishedAt = DateTime.UtcNow,
+                Content = "Updated Content"
+            };
+
+            Article article = new("67eeac692d3c4efa816802ff", new Source("cnn", "CNN"), "John", "Title", "Desc", "url", "img", DateTime.UtcNow, "Content");
+
+            _newsRepoMock
+                .Setup(x => x.GetNewsByIdAsync(id))
+                .ReturnsAsync(article);
+
+            _newsRepoMock
+                .Setup(x => x.DeleteAsync(id))
+                .ThrowsAsync(new Exception("Database connection failed"));
+
+            // Act
+            var result = await _newsAppService.DeleteArticle(id);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data.Should().Be(0);
+            result.ErrorMessage.Should().Contain("An error occurred");
+            result.ErrorMessage.Should().Contain("Database connection failed");
+        }
     }
 }
