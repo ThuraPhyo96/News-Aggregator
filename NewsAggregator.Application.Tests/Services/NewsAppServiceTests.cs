@@ -304,5 +304,256 @@ namespace NewsAggregator.Application.Tests.Services
             result.ErrorMessage.Should().Contain("An error occurred");
             result.ErrorMessage.Should().Contain("Database connection failed");
         }
+
+        [Fact]
+        public async Task UpdateArticle_ShouldReturnUpdatedCount_WhenValidRequest()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa816802ff";
+            Article article = new("67eeac692d3c4efa816802ff", new Source("cnn", "CNN"), "John", "Title", "Desc", "url", "img", DateTime.UtcNow, "Content");
+
+            _newsRepoMock
+                .Setup(x => x.GetNewsByIdAsync(id))
+                .ReturnsAsync(article);
+
+            _newsRepoMock
+                .Setup(x => x.UpdateAsync(id, It.IsAny<Article>()))
+                .ReturnsAsync(1);
+
+            UpdateArticleDto updateArticle = new()
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = "Updated John",
+                Title = "Updated Title",
+                Description = "Updated Desc",
+                Url = "Updated url",
+                UrlToImage = "Updated img",
+                PublishedAt = DateTime.UtcNow,
+                Content = "Updated Content"
+            };
+
+            // Act
+            var result = await _newsAppService.UpdateArticle(id, updateArticle);
+
+            // Assert
+            result.Success.Should().BeTrue();
+            result.Data!.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task UpdateArticle_ShouldReturnFailed_WhenIdIsNull()
+        {
+            // Arrange
+            string id = null!;
+
+            UpdateArticleDto updateArticle = new()
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = "Updated John",
+                Title = "Updated Title",
+                Description = "Updated Desc",
+                Url = "Updated url",
+                UrlToImage = "Updated img",
+                PublishedAt = DateTime.UtcNow,
+                Content = "Updated Content"
+            };
+
+            // Act
+            var result = await _newsAppService.UpdateArticle(id, updateArticle);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage!.Should().Be("ID cannot be empty or null.");
+        }
+
+        [Fact]
+        public async Task UpdateArticle_ShouldReturnInvalidIdFormat_WhenInvalidId()
+        {
+            // Arrange
+            string id = "1";
+
+            UpdateArticleDto updateArticle = new()
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = "Updated John",
+                Title = "Updated Title",
+                Description = "Updated Desc",
+                Url = "Updated url",
+                UrlToImage = "Updated img",
+                PublishedAt = DateTime.UtcNow,
+                Content = "Updated Content"
+            };
+
+            // Act
+            var result = await _newsAppService.UpdateArticle(id, updateArticle);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage!.Should().Be("Invalid ID format.");
+        }
+
+        [Fact]
+        public async Task UpdateArticle_ShouldReturnNotFound_WhenNotExistingId()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa81680200";
+
+            UpdateArticleDto updateArticle = new()
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = "Updated John",
+                Title = "Updated Title",
+                Description = "Updated Desc",
+                Url = "Updated url",
+                UrlToImage = "Updated img",
+                PublishedAt = DateTime.UtcNow,
+                Content = "Updated Content"
+            };
+
+            _newsRepoMock
+              .Setup(x => x.GetNewsByIdAsync(id))
+              .ReturnsAsync((Article?)null);
+
+            // Act
+            var result = await _newsAppService.UpdateArticle(id, updateArticle);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage!.Should().Be("Not found!");
+        }
+
+        [Fact]
+        public async Task UpdateArticle_ShouldReturnFailed_WhenUpdateAsyncFails()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa816802ff";
+
+            UpdateArticleDto updateArticle = new()
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = "Updated John",
+                Title = "Updated Title",
+                Description = "Updated Desc",
+                Url = "Updated url",
+                UrlToImage = "Updated img",
+                PublishedAt = DateTime.UtcNow,
+                Content = "Updated Content"
+            };
+
+            Article article = new("67eeac692d3c4efa816802ff", new Source("cnn", "CNN"), "John", "Title", "Desc", "url", "img", DateTime.UtcNow, "Content");
+
+            _newsRepoMock
+                .Setup(x => x.GetNewsByIdAsync(id))
+                .ReturnsAsync(article);
+
+            _newsRepoMock
+                .Setup(x => x.UpdateAsync(id, It.IsAny<Article>()))
+                .ReturnsAsync(0);
+
+            // Act
+            var result = await _newsAppService.UpdateArticle(id, updateArticle);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data!.Should().Be(0);
+            result.ErrorMessage.Should().Be("Failed to update article");
+        }
+
+        [Theory]
+        [InlineData(null, "Title", "Content")]
+        [InlineData("Author", null, "Content")]
+        [InlineData("Author", "Title", null)]
+        public void UpdateArticle_ShouldBeInvalid_WhenRequiredFieldsAreMissing(string? author, string? title, string? content)
+        {
+            // Arrange
+            var dto = new UpdateArticleDto
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = author,
+                Title = title,
+                Content = content,
+                Description = "Desc",
+                Url = "url",
+                UrlToImage = "img",
+                PublishedAt = DateTime.UtcNow
+            };
+
+            // Act
+            var isValid = ValidationHelper.TryValidate(dto, out var validationResults);
+
+            // Assert
+            isValid.Should().BeFalse();
+            validationResults.Should().NotBeEmpty();
+        }
+
+        [Theory]
+        [InlineData(" ", "Title", "Content")]
+        [InlineData("John", " ", "Content")]
+        [InlineData("John", "Title", " ")]
+        public async Task UpdateArticle_ShouldReturnFailed_WhenRequiredFieldsAreWhitespace(string? author, string? title, string? content)
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa816802ff";
+
+            var dto = new UpdateArticleDto
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = author,
+                Title = title,
+                Content = content,
+                Description = "Desc",
+                Url = "url",
+                UrlToImage = "img",
+                PublishedAt = DateTime.UtcNow
+            };
+
+            // Act
+            var result = await _newsAppService.UpdateArticle(id, dto);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.ErrorMessage.Should().Be("Author, Title, and Content cannot be empty or whitespace.");
+        }
+
+        [Fact]
+        public async Task UpdateArticle_ShouldReturnFailed_WhenExceptionThrown()
+        {
+            // Arrange
+            string id = "67eeac692d3c4efa816802ff";
+
+            UpdateArticleDto updateArticle = new()
+            {
+                Source = new SourceDto { Id = "cnn", Name = "CNN" },
+                Author = "Updated John",
+                Title = "Updated Title",
+                Description = "Updated Desc",
+                Url = "Updated url",
+                UrlToImage = "Updated img",
+                PublishedAt = DateTime.UtcNow,
+                Content = "Updated Content"
+            };
+
+            Article article = new("67eeac692d3c4efa816802ff", new Source("cnn", "CNN"), "John", "Title", "Desc", "url", "img", DateTime.UtcNow, "Content");
+
+            _newsRepoMock
+                .Setup(x => x.GetNewsByIdAsync(id))
+                .ReturnsAsync(article);
+
+            _newsRepoMock
+                .Setup(x => x.UpdateAsync(id, It.IsAny<Article>()))
+                .ThrowsAsync(new Exception("Database connection failed"));
+
+            // Act
+            var result = await _newsAppService.UpdateArticle(id, updateArticle);
+
+            // Assert
+            result.Success.Should().BeFalse();
+            result.Data.Should().Be(0);
+            result.ErrorMessage.Should().Contain("An error occurred");
+            result.ErrorMessage.Should().Contain("Database connection failed");
+        }
     }
 }

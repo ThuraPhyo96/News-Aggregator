@@ -54,12 +54,18 @@ namespace NewsAggregator.Application.DTOs
     public class UpdateArticleDto
     {
         public SourceDto? Source { get; set; }
+
+        [Required]
         public string? Author { get; set; }
+
+        [Required]
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? Url { get; set; }
         public string? UrlToImage { get; set; }
         public DateTime? PublishedAt { get; set; }
+
+        [Required]
         public string? Content { get; set; }
     }
 }

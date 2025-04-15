@@ -27,7 +27,7 @@ namespace NewsAggregator.Application.Services
         {
             try
             {
-                if(string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                     return Result<ArticleDto>.Fail("Invalid ID format.");
 
                 if (!IdValidationHelper.IsValidHexadecimalId(id))
@@ -49,7 +49,7 @@ namespace NewsAggregator.Application.Services
         {
             try
             {
-                if(input is null)
+                if (input is null)
                     return Result<ArticleDto>.Fail("Article is null.");
 
                 if (string.IsNullOrWhiteSpace(input.Author) ||
@@ -80,8 +80,18 @@ namespace NewsAggregator.Application.Services
         {
             try
             {
+                if (string.IsNullOrEmpty(id))
+                    return Result<long>.Fail("ID cannot be empty or null.");
+
                 if (!IdValidationHelper.IsValidHexadecimalId(id))
                     return Result<long>.Fail("Invalid ID format.");
+
+                if (string.IsNullOrWhiteSpace(input.Author) ||
+                   string.IsNullOrWhiteSpace(input.Title) ||
+                   string.IsNullOrWhiteSpace(input.Content))
+                {
+                    return Result<long>.Fail("Author, Title, and Content cannot be empty or whitespace.");
+                }
 
                 var obj = await _newsRepository.GetNewsByIdAsync(id);
                 if (obj is null)
