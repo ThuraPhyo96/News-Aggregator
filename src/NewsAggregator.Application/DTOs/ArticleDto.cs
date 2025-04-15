@@ -32,6 +32,23 @@ namespace NewsAggregator.Application.DTOs
 
         [Required]
         public string? Content { get; set; }
+
+        public CreateArticleDto()
+        {
+
+        }
+
+        public CreateArticleDto(SourceDto? source, string? author, string? title, string? description, string? url, string? urlToImage, DateTime? publishedAt, string? content)
+        {
+            Source = source;
+            Author = author;
+            Title = title;
+            Description = description;
+            Url = url;
+            UrlToImage = urlToImage;
+            PublishedAt = publishedAt;
+            Content = content;
+        }
     }
 
     public class UpdateArticleDto

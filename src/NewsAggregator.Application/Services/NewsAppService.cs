@@ -45,10 +45,20 @@ namespace NewsAggregator.Application.Services
             }
         }
 
-        public async Task<Result<ArticleDto>> CreateArticle(CreateArticleDto input)
+        public async Task<Result<ArticleDto>> CreateArticle(CreateArticleDto? input)
         {
             try
             {
+                if(input is null)
+                    return Result<ArticleDto>.Fail("Article is null.");
+
+                if (string.IsNullOrWhiteSpace(input.Author) ||
+                    string.IsNullOrWhiteSpace(input.Title) ||
+                    string.IsNullOrWhiteSpace(input.Content))
+                {
+                    return Result<ArticleDto>.Fail("Author, Title, and Content cannot be empty or whitespace.");
+                }
+
                 var article = ArticleMapper.ToEntity(input);
                 if (article is null)
                     return Result<ArticleDto>.Fail("Invalid article data");
