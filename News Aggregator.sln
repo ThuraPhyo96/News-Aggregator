@@ -19,7 +19,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsAggregator.FunctionalTe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsAggregator.Application.Tests", "NewsAggregator.Application.Tests\NewsAggregator.Application.Tests.csproj", "{63092C8D-A864-4DD7-BA81-CE426A50DE90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAggregator.IntegrationTests", "NewsAggregator.IntegrationTests\NewsAggregator.IntegrationTests.csproj", "{828C5748-491B-47A3-90A6-477BA425F900}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsAggregator.IntegrationTests", "NewsAggregator.IntegrationTests\NewsAggregator.IntegrationTests.csproj", "{828C5748-491B-47A3-90A6-477BA425F900}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6D840F8D-387D-483F-9774-F7DBA9B10AA7}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		Dockerfile = Dockerfile
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
