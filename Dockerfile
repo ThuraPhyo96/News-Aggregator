@@ -1,30 +1,26 @@
-# Step 1: Build stage
+# Use the official .NET SDK image for building
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Set working directory
 WORKDIR /app
 
-# Copy solution and project files
-COPY *.sln ./
-COPY src/NewsAggregator.API/NewsAggregator.API.csproj ./src/NewsAggregator.API/
-
-# Restore dependencies
-RUN dotnet restore
-
-# Copy all source code
+# Copy solution and all source folders
 COPY . .
 
-# Publish the app to the /out folder
-WORKDIR /app/src/NewsAggregator.API
-RUN dotnet publish -c Release -o /out
+# Restore dependencies
+RUN dotnet restore "News Aggregator.sln"
 
-# Step 2: Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# Build the app
+RUN dotnet publish "src/NewsAggregator.API/NewsAggregator.API.csproj" -c Release -o /app/publish --no-restore
+
+# Use ASP.NET Core runtime image for running
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# Set working directory
 WORKDIR /app
 
-# Copy published app from build stage
-COPY --from=build /out .
+# Copy the published output from the build stage
+COPY --from=build /app/publish .
 
-# Expose port 80 for HTTP
-EXPOSE 80
-
-# Set entry point
+# Set the entrypoint
 ENTRYPOINT ["dotnet", "NewsAggregator.API.dll"]
