@@ -13,8 +13,9 @@ namespace NewsAggregator.Infrastructure
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             // Configure MongoDB client and database
-            var connectionString = configuration["MongoDbSettings:ConnectionString"];
-            var databaseName = configuration["MongoDbSettings:DatabaseName"];
+            var connectionString = Environment.GetEnvironmentVariable("MONGODB_URI") ?? configuration["MongoDbSettings:ConnectionString"];
+            var databaseName = Environment.GetEnvironmentVariable("MONGO_DBNAME") ?? configuration["MongoDbSettings:DatabaseName"];
+
             var mongoClient = new MongoClient(connectionString);
             var database = mongoClient.GetDatabase(databaseName);
 
