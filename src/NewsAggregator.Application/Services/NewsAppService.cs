@@ -4,7 +4,6 @@ using NewsAggregator.Application.Helpers;
 using NewsAggregator.Application.Interfaces;
 using NewsAggregator.Application.Mappers;
 using NewsAggregator.Domain.Interfaces;
-using NewsAggregator.Domain.Models;
 
 namespace NewsAggregator.Application.Services
 {

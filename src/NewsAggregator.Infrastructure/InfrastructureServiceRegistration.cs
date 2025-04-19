@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Infrastructure.HttpClients;
 using Microsoft.Extensions.Logging;
+using NewsAggregator.Infrastructure.Helpers;
 
 namespace NewsAggregator.Infrastructure
 {
@@ -21,6 +22,8 @@ namespace NewsAggregator.Infrastructure
 
             services.AddSingleton(database);
             services.AddScoped<INewsRepository, NewsRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddSingleton<JwtTokenGenerator>();
 
             var newApiBaseUrl = configuration["NewsApi:BaseUrl"];
 

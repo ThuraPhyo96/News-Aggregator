@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using NewsAggregator.Application.Common;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NewsAggregator.Application.DTOs;
 using NewsAggregator.Application.Interfaces;
 
@@ -7,6 +7,7 @@ namespace NewsAggregator.API.Controllers
 {
     [Route("api/news")]
     [ApiController]
+    [Authorize]
     public class NewsController : ControllerBase
     {
         private readonly INewsAppService _newsAppService;
