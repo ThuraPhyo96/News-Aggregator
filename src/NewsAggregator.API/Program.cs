@@ -3,12 +3,13 @@ using NewsAggregator.API.Middleware;
 using NewsAggregator.Application.Interfaces;
 using NewsAggregator.Application.Services;
 using NewsAggregator.Infrastructure;
+using NewsAggregator.Infrastructure.Data;
 using Serilog;
 using System.Text;
 
 public partial class Program
 {
-    public static WebApplication CreateApp(string[] args)
+    public static async Task<WebApplication> CreateApp(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,12 @@ public partial class Program
 
             var app = builder.Build();
 
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var seeder = scope.ServiceProvider.GetRequiredService<SeedData>();
+            //    await seeder.SeedAsync();
+            //}
+
             app.UseSerilogRequestLogging();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -116,9 +123,9 @@ public partial class Program
         }
     }
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        var app = CreateApp(args);
+        var app = await CreateApp(args);
         app.Run();
     }
 }

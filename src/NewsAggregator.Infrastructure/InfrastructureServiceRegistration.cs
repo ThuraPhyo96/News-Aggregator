@@ -6,6 +6,7 @@ using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Infrastructure.HttpClients;
 using Microsoft.Extensions.Logging;
 using NewsAggregator.Infrastructure.Helpers;
+using NewsAggregator.Infrastructure.Data;
 
 namespace NewsAggregator.Infrastructure
 {
@@ -38,6 +39,7 @@ namespace NewsAggregator.Infrastructure
 
             // Register the client class for DI
             services.AddScoped<NewsApiClient>();
+            services.AddSingleton<SeedData>();
 
             return services;
         }
