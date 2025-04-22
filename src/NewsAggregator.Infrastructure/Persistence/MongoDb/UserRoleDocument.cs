@@ -3,9 +3,12 @@ using MongoDB.Bson;
 
 namespace NewsAggregator.Infrastructure.Persistence.MongoDb
 {
-    internal class UserRoleDocument
+    public class UserRoleDocument
     {
         [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
+
         [BsonRepresentation(BsonType.ObjectId)]
         public string? UserId { get; set; }
 

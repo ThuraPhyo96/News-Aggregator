@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NewsAggregator.API.Authorization;
 using NewsAggregator.Application.DTOs;
 using NewsAggregator.Application.Interfaces;
 
@@ -22,6 +23,7 @@ namespace NewsAggregator.API.Controllers
         /// </summary>
         /// GET /api/news
         [HttpGet]
+        [HasPermission("articles.read")]
         public async Task<IActionResult> GetAllNews()
         {
             try
@@ -40,6 +42,7 @@ namespace NewsAggregator.API.Controllers
         /// </summary>
         // GET /api/news/{id}
         [HttpGet("{id}")]
+        [HasPermission("articles.read")]
         public async Task<IActionResult> GetNewsById(string id)
         {
             try
@@ -71,6 +74,7 @@ namespace NewsAggregator.API.Controllers
 
         // POST /api/news
         [HttpPost]
+        [HasPermission("articles.write")]
         public async Task<IActionResult> CreateNews([FromBody] CreateArticleDto article)
         {
             try

@@ -76,7 +76,7 @@ namespace NewsAggregator.Application.Services
                 if (user == null || _userRepository.VerifyUser(input.Password!, user.PasswordHash!))
                     return Result<string>.Fail($"Invalid credentials.");
 
-                var token = _userRepository.GetToken(user.Username!);
+                var token = await _userRepository.GetToken(user.Username!);
                 return Result<string>.Ok(token);
             }
             catch (Exception ex)

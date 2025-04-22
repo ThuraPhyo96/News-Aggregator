@@ -53,9 +53,9 @@ namespace NewsAggregator.Infrastructure.Repositories
             return PasswordHasher.Verify(password, passwordHash);
         }
 
-        public string GetToken(string username)
+        public async Task<string> GetToken(string username)
         {
-           return _tokenGenerator.GenerateToken(username);
+            return await _tokenGenerator.GenerateToken(username);
         }
     }
 }

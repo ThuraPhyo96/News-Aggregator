@@ -7,6 +7,9 @@ namespace NewsAggregator.Infrastructure.Persistence.MongoDb
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
+
+        [BsonRepresentation(BsonType.ObjectId)]
         public string? RoleId { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]

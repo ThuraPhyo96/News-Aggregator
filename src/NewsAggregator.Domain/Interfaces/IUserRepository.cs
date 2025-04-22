@@ -7,6 +7,6 @@ namespace NewsAggregator.Domain.Interfaces
         Task<User?> GetByUsernameAsync(string username);
         Task<User?> AddAsync(User user);
         bool VerifyUser(string password, string passwordHash);
-        string GetToken(string username);
+        Task<string> GetToken(string username);
     }
 }

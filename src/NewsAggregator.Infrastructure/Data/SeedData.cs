@@ -23,10 +23,10 @@ namespace NewsAggregator.Infrastructure.Data
 
         public async Task SeedAsync()
         {
-            await SeedRolesAsync();
-            await SeedPermissionsAsync();
-            await SeedRolePermissionsAsync();
-            await SeedAdminUserRoleAsync();
+            //await SeedRolesAsync();
+            //await SeedPermissionsAsync();
+            //await SeedRolePermissionsAsync();
+            //await SeedAdminUserRoleAsync();
         }
 
         private async Task SeedRolesAsync()

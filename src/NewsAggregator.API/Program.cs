@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using NewsAggregator.API.Authorization;
 using NewsAggregator.API.Middleware;
 using NewsAggregator.Application.Interfaces;
 using NewsAggregator.Application.Services;
@@ -88,13 +90,16 @@ public partial class Program
                 });
             });
 
+            builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicPermissionPolicyProvider>();
+
             var app = builder.Build();
 
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var seeder = scope.ServiceProvider.GetRequiredService<SeedData>();
-            //    await seeder.SeedAsync();
-            //}
+            using (var scope = app.Services.CreateScope())
+            {
+                var seeder = scope.ServiceProvider.GetRequiredService<SeedData>();
+                await seeder.SeedAsync();
+            }
 
             app.UseSerilogRequestLogging();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
