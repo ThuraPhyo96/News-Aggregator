@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NewsAggregator.API.Authorization;
 using NewsAggregator.API.Middleware;
@@ -91,7 +93,14 @@ public partial class Program
             });
 
             builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-            builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicPermissionPolicyProvider>();
+            builder.Services.AddSingleton<IAuthorizationPolicyProvider>(sp =>
+                new DynamicPermissionPolicyProvider(
+                    sp,
+                    sp.GetRequiredService<IOptions<AuthorizationOptions>>(),
+                    sp.GetRequiredService<IMemoryCache>()
+                )
+            );
+            builder.Services.AddMemoryCache();
 
             var app = builder.Build();
 
