@@ -23,9 +23,6 @@ namespace NewsAggregator.Application.Services
                 if (string.IsNullOrEmpty(username))
                     return Result<UserDto>.Fail("User name can not be null or empty.");
 
-                if (!IdValidationHelper.IsValidHexadecimalId(username))
-                    return Result<UserDto>.Fail("Invalid user format.");
-
                 var obj = await _userRepository.GetByUsernameAsync(username);
                 if (obj is null)
                     return Result<UserDto>.Fail("Not found!");
@@ -72,8 +69,21 @@ namespace NewsAggregator.Application.Services
         {
             try
             {
+                if (input is null)
+                    return Result<string>.Fail("Login user can not be null.");
+
+                if (string.IsNullOrWhiteSpace(input.Username) ||
+                   string.IsNullOrWhiteSpace(input.Password))
+                {
+                    return Result<string>.Fail("Username and Password cannot be empty or whitespace.");
+                }
+
                 var user = await _userRepository.GetByUsernameAsync(input.Username!);
-                if (user == null || _userRepository.VerifyUser(input.Password!, user.PasswordHash!))
+                if (user == null)
+                    return Result<string>.Fail($"Invalid credentials.");
+
+                bool isVerify = _userRepository.VerifyUser(input.Password!, user!.PasswordHash!);
+                if (!isVerify)
                     return Result<string>.Fail($"Invalid credentials.");
 
                 var token = await _userRepository.GetToken(user.Username!);

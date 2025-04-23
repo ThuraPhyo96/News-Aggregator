@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace NewsAggregator.Application.DTOs
 {
@@ -14,13 +10,19 @@ namespace NewsAggregator.Application.DTOs
 
     public class CreateUserDto
     {
+        [Required]
         public string? Username { get; set; }
+
+        [Required]
         public string? Password { get; set; }
     }
 
     public class LoginUserDto
     {
+        [Required]
         public string? Username { get; set; }
+
+        [Required]
         public string? Password { get; set; }
     }
 }
