@@ -15,8 +15,8 @@ namespace NewsAggregator.API.Controllers
             _userAppService = userAppService;
         }
 
-        [HttpGet("{username}")]
-        public async Task<IActionResult> GetByUsername(string username)
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] string username)
         {
             try
             {
@@ -24,7 +24,12 @@ namespace NewsAggregator.API.Controllers
 
                 if (!result.Success)
                 {
-                    if (result.ErrorMessage?.Contains("Invalid ID format") == true)
+                    if (result.ErrorMessage?.Contains("User name can not be null or empty.") == true)
+                    {
+                        return BadRequest(result.ErrorMessage);
+                    }
+
+                    if (result.ErrorMessage?.Contains("User name contains invalid characters.") == true)
                     {
                         return BadRequest(result.ErrorMessage);
                     }
@@ -55,7 +60,7 @@ namespace NewsAggregator.API.Controllers
                 if (!result.Success)
                     return BadRequest(result.ErrorMessage);
 
-                return CreatedAtAction(nameof(GetByUsername), new { username = result.Data!.Username }, result);
+                return CreatedAtAction(nameof(Get), new { username = result.Data!.Username }, result);
             }
             catch (Exception ex)
             {

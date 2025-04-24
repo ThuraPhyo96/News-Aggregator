@@ -23,6 +23,9 @@ namespace NewsAggregator.Application.Services
                 if (string.IsNullOrEmpty(username))
                     return Result<UserDto>.Fail("User name can not be null or empty.");
 
+                if (!UsernameValidationHelper.IsValidUsername(username))
+                    return Result<UserDto>.Fail("User name contains invalid characters.");
+
                 var obj = await _userRepository.GetByUsernameAsync(username);
                 if (obj is null)
                     return Result<UserDto>.Fail("Not found!");
