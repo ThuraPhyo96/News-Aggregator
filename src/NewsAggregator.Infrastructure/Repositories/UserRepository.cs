@@ -1,5 +1,4 @@
-﻿using DnsClient;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Domain.Models;
 using NewsAggregator.Infrastructure.Helpers;
@@ -56,6 +55,18 @@ namespace NewsAggregator.Infrastructure.Repositories
         public async Task<string> GetToken(string username)
         {
             return await _tokenGenerator.GenerateToken(username);
+        }
+
+        public async Task<bool> IsUserExistWhenCreate(string username)
+        {
+            try
+            {
+                return await _userCollection.Find(u => u.Username == username).AnyAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

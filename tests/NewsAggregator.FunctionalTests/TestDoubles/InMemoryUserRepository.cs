@@ -16,13 +16,13 @@ namespace NewsAggregator.FunctionalTests.TestDoubles
             User adminUser = new(
                 "67eeac692d3c4efa816802tt",
                 "admin",
-                "oaieofaopvejio(00gqjgqejfopipeoifpaoir"
+                "123456"
                 );
 
             User user = new(
                "67eeac692d3c4efa816802ff",
                "John",
-               "oaieofaopvejio(00gqjgqej"
+               "789012"
                );
 
             _users[adminUser.Username!] = adminUser;
@@ -51,12 +51,20 @@ namespace NewsAggregator.FunctionalTests.TestDoubles
 
         public bool VerifyUser(string password, string passwordHash)
         {
-            return true;
+            return password == passwordHash;
         }
 
         public async Task<string> GetToken(string username)
         {
             return "0pr4q-03tg0qgoiobhwobwoiuq45ugqu9.kgijtgoi.094";
+        }
+
+        public async Task<bool> IsUserExistWhenCreate(string username)
+        {
+            _users.TryGetValue(username, out var user);
+            if (user is null)
+                return false;
+            return true;
         }
     }
 }

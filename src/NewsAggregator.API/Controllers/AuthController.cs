@@ -58,8 +58,10 @@ namespace NewsAggregator.API.Controllers
                 var result = await _userAppService.CreateUser(user);
 
                 if (!result.Success)
+                {
                     return BadRequest(result.ErrorMessage);
-
+                }
+                   
                 return CreatedAtAction(nameof(Get), new { username = result.Data!.Username }, result);
             }
             catch (Exception ex)

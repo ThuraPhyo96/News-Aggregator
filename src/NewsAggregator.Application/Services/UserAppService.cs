@@ -26,7 +26,7 @@ namespace NewsAggregator.Application.Services
                 if (!UsernameValidationHelper.IsValidUsername(username))
                     return Result<UserDto>.Fail("User name contains invalid characters.");
 
-                var obj = await _userRepository.GetByUsernameAsync(username);
+                var obj = await _userRepository.GetByUsernameAsync(username.ToLowerInvariant());
                 if (obj is null)
                     return Result<UserDto>.Fail("Not found!");
 
@@ -50,6 +50,12 @@ namespace NewsAggregator.Application.Services
                 {
                     return Result<UserDto>.Fail("Username and Password cannot be empty or whitespace.");
                 }
+
+                if (!UsernameValidationHelper.IsValidUsername(input.Username))
+                    return Result<UserDto>.Fail("User name contains invalid characters.");
+
+                if (await _userRepository.IsUserExistWhenCreate(input.Username))
+                    return Result<UserDto>.Fail("User name already existed.");
 
                 var user = UserMapper.ToEntity(input);
                 if (user is null)
@@ -81,7 +87,7 @@ namespace NewsAggregator.Application.Services
                     return Result<string>.Fail("Username and Password cannot be empty or whitespace.");
                 }
 
-                var user = await _userRepository.GetByUsernameAsync(input.Username!);
+                var user = await _userRepository.GetByUsernameAsync(input.Username.ToLowerInvariant());
                 if (user == null)
                     return Result<string>.Fail($"Invalid credentials.");
 

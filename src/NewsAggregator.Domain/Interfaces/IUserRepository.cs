@@ -8,5 +8,6 @@ namespace NewsAggregator.Domain.Interfaces
         Task<User?> AddAsync(User user);
         bool VerifyUser(string password, string passwordHash);
         Task<string> GetToken(string username);
+        Task<bool> IsUserExistWhenCreate(string username);
     }
 }

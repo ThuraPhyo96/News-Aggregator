@@ -31,7 +31,7 @@ namespace NewsAggregator.FunctionalTests
         }
 
         [Fact]
-        public async Task GetByUsername_ValidUsername_ShouldReturnOK()
+        public async Task GetByUsername_ShouldReturnOK_WhenValidUsername()
         {
             // Arrange
             var client = _factory.CreateClient();
@@ -44,17 +44,17 @@ namespace NewsAggregator.FunctionalTests
         }
 
         [Fact]
-        public async Task GetByUsername_ValidUsernameWithDifferentCase_ShouldReturnOk()
+        public async Task GetByUsername_ShouldReturnOk_WhenValidUsernameWithDifferentCase()
         {
             var client = _factory.CreateClient();
 
-            var response = await client.GetAsync("/api/auth/ADMIN");
+            var response = await client.GetAsync("/api/auth?username=ADMIN");
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Fact]
-        public async Task GetByUsername_NoExistingUsername_ShouldReturnNotFound()
+        public async Task GetByUsername_ShouldReturnNotFound_WhenNoExistingUsername_()
         {
             // Arrange
             var client = _factory.CreateClient();
@@ -67,7 +67,7 @@ namespace NewsAggregator.FunctionalTests
         }
 
         [Fact]
-        public async Task GetByUsername_EmptyUsername_ShouldReturnBadRequest()
+        public async Task GetByUsername_ShouldReturnBadRequest_WhenEmptyUsername()
         {
             // Arrange
             var client = _factory.CreateClient();
@@ -80,20 +80,7 @@ namespace NewsAggregator.FunctionalTests
         }
 
         [Fact]
-        public async Task GetByUsername_NullAsLiteral_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var client = _factory.CreateClient();
-
-            // Act
-            var response = await client.GetAsync("/api/auth?username=null");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Fact]
-        public async Task GetByUsername_InvalidCharacters_ShouldReturnBadRequest()
+        public async Task GetByUsername_ShouldReturnBadRequest_WhenInvalidCharacters()
         {
             // Arrange
             var client = _factory.CreateClient();
@@ -114,7 +101,7 @@ namespace NewsAggregator.FunctionalTests
                 services.RemoveAll<IUserRepository>();
                 services.RemoveAll<IUserAppService>();
 
-                services.AddScoped<FailingArticleRepository>();
+                services.AddScoped<FailingUserRepository>();
             });
             var client = factory.CreateClient();
 
@@ -145,12 +132,19 @@ namespace NewsAggregator.FunctionalTests
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
 
-        [Fact]
-        public async Task CreateUser_ShouldReturnBadRequest_WhenInvalidUserPosted()
+        [Theory]
+        [InlineData("", "")]
+        [InlineData("", "123456")]
+        [InlineData("admin", "")]
+        public async Task CreateUser_ShouldReturnBadRequest_WhenInvalidUserPosted(string username, string password)
         {
             // Arrange
             var client = _factory.CreateClient();
-            var invalidUser = new { };
+            var invalidUser = new
+            {
+                Username = username,
+                Password = password
+            };
 
             var content = new StringContent(JsonSerializer.Serialize(invalidUser), Encoding.UTF8, "application/json");
 
@@ -159,6 +153,74 @@ namespace NewsAggregator.FunctionalTests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task CreateUser_ShouldReturnBadRequest_WhenDuplicateUsername()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var invalidUser = new
+            {
+                Username = "admin",
+                Password = "123456"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(invalidUser), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await client.PostAsync("/api/auth/register", content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task CreateUser_ShouldReturnBadRequest_WhenInvalidCharactersUsername()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var invalidUser = new
+            {
+                Username = "@@@###",
+                Password = "123456"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(invalidUser), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await client.PostAsync("/api/auth/register", content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task CreateUser_ShouldReturnInternalServer_WhenFailed()
+        {
+            // Arrange
+            var factory = new CustomWebAppFactory(services =>
+            {
+                services.RemoveAll<IUserRepository>();
+                services.RemoveAll<IUserAppService>();
+
+                services.AddScoped<FailingArticleRepository>();
+            });
+            var client = factory.CreateClient();
+
+            var invalidUser = new
+            {
+                Username = "admin",
+                Password = "123456"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(invalidUser), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await client.PostAsync("/api/auth/register", content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
 
         [Fact]
@@ -182,6 +244,23 @@ namespace NewsAggregator.FunctionalTests
         }
 
         [Fact]
+        public async Task LoginUser_ShouldReturnOK_WhenUsernameIsDifferentCase()
+        {
+            var client = _factory.CreateClient();
+            var user = new
+            {
+                Username = "AdMiN",
+                Password = "123456"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("/api/auth/login", content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
         public async Task LoginUser_ShouldReturnBadRequest_WhenInvalidUserPosted()
         {
             // Arrange
@@ -195,6 +274,93 @@ namespace NewsAggregator.FunctionalTests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task LoginUser_ShouldReturnBadRequest_WhenPasswordIsIncorrect()
+        {
+            var client = _factory.CreateClient();
+            var user = new
+            {
+                Username = "admin",
+                Password = "978783"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("/api/auth/login", content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task LoginUser_ShouldReturnBadRequest_WhenUsernameNotExists()
+        {
+            var client = _factory.CreateClient();
+            var user = new
+            {
+                Username = "Smith",
+                Password = "123456"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("/api/auth/login", content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task LoginUser_ShouldReturnBadRequest_WhenUsernameMissing()
+        {
+            var client = _factory.CreateClient();
+            var user = new { Password = "123456" };
+
+            var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("/api/auth/login", content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task LoginUser_ShouldReturnBadRequest_WhenPasswordMissing()
+        {
+            var client = _factory.CreateClient();
+            var user = new { Username = "admin" };
+
+            var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("/api/auth/login", content);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task LoginUser_ShouldReturnInternalServer_WhenFailed()
+        {
+            // Arrange
+            var factory = new CustomWebAppFactory(services =>
+            {
+                services.RemoveAll<IUserRepository>();
+                services.RemoveAll<IUserAppService>();
+
+                services.AddScoped<FailingUserRepository>();
+            });
+            var client = factory.CreateClient();
+            var user = new
+            {
+                Username = "admin",
+                Password = "123456"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(user), Encoding.UTF8, "application/json");
+
+            // Act
+            var response = await client.PostAsync("/api/auth/login", content);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
     }
 }

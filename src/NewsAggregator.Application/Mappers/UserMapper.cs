@@ -32,7 +32,7 @@ namespace NewsAggregator.Application.Mappers
         {
             if (user == null) return null;
 
-            return new User(user.Username, user.Password);
+            return new User(user.Username?.ToLowerInvariant(), user.Password);
         }
     }
 }
