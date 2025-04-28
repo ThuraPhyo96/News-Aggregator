@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using NewsAggregator.API.Authorization;
 using NewsAggregator.Application.DTOs;
 using NewsAggregator.Application.Interfaces;
 
 namespace NewsAggregator.API.Controllers
 {
+    [EnableRateLimiting("fixed")]
     [Route("api/news")]
     [ApiController]
     [Authorize]

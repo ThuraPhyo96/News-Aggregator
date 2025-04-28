@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +11,7 @@ using NewsAggregator.Infrastructure;
 using NewsAggregator.Infrastructure.Data;
 using Serilog;
 using System.Text;
+using System.Threading.RateLimiting;
 
 public partial class Program
 {
@@ -102,6 +104,18 @@ public partial class Program
             );
             builder.Services.AddMemoryCache();
 
+            // Add Rate Limiting services
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.AddFixedWindowLimiter(policyName: "fixed", configureOptions: limiterOptions =>
+                {
+                    limiterOptions.PermitLimit = 5; // Max 5 requests
+                    limiterOptions.Window = TimeSpan.FromMinutes(1); // Every 1 minute
+                    limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    limiterOptions.QueueLimit = 2; // Allow 2 extra requests to queue
+                });
+            });
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
@@ -119,9 +133,14 @@ public partial class Program
                 app.UseSwaggerUI();
             }
 
+            app.UseRouting();
+            // Enable Rate Limiting
+            app.UseRateLimiter();
+
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.MapControllers();
 
             return app;
