@@ -107,12 +107,31 @@ public partial class Program
             // Add Rate Limiting services
             builder.Services.AddRateLimiter(options =>
             {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests; // Set global status code for rejected requests
+
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    context.HttpContext.Response.ContentType = "application/json";
+
+                    var retryAfter = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfterVal)
+                        ? retryAfterVal.TotalSeconds
+                        : 60; // Default fallback
+
+                    var errorResponse = new
+                    {
+                        error = "Too many requests. Please try again later.",
+                        retryAfterSeconds = retryAfter
+                    };
+
+                    await context.HttpContext.Response.WriteAsJsonAsync(errorResponse, cancellationToken);
+                };
+
                 options.AddFixedWindowLimiter(policyName: "fixed", configureOptions: limiterOptions =>
                 {
                     limiterOptions.PermitLimit = 5; // Max 5 requests
                     limiterOptions.Window = TimeSpan.FromMinutes(1); // Every 1 minute
                     limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                    limiterOptions.QueueLimit = 2; // Allow 2 extra requests to queue
+                    limiterOptions.QueueLimit = 0; // Disable queueing: reject immediately
                 });
             });
 
