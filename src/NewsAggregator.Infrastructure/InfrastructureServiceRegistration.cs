@@ -27,7 +27,7 @@ namespace NewsAggregator.Infrastructure
             services.AddScoped<INewsRepository, NewsRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
-            services.AddSingleton<JwtTokenGenerator>();
+            services.AddScoped<ITokenRepository, TokenRepository>();
 
             var newApiBaseUrl = configuration["NewsApi:BaseUrl"];
 

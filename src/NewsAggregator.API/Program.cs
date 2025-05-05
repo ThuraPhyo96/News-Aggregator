@@ -38,6 +38,7 @@ public partial class Program
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddScoped<INewsAppService, NewsAppService>();
             builder.Services.AddScoped<IUserAppService, UserAppService>();
+            builder.Services.AddScoped<ITokenAppService, TokenAppService>();
             builder.Services.AddScoped<NewsStorageAppService>();
 
             builder.Services.AddControllers();

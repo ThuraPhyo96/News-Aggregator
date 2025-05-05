@@ -74,33 +74,38 @@ namespace NewsAggregator.Application.Services
             }
         }
 
-        public async Task<Result<string>> GetToken(LoginUserDto input)
+        public async Task<Result<RefreshTokenResponseDto>> GetToken(LoginUserDto input)
         {
             try
             {
                 if (input is null)
-                    return Result<string>.Fail("Login user can not be null.");
+                    return Result<RefreshTokenResponseDto>.Fail("Login user can not be null.");
 
                 if (string.IsNullOrWhiteSpace(input.Username) ||
                    string.IsNullOrWhiteSpace(input.Password))
                 {
-                    return Result<string>.Fail("Username and Password cannot be empty or whitespace.");
+                    return Result<RefreshTokenResponseDto>.Fail("Username and Password cannot be empty or whitespace.");
                 }
 
                 var user = await _userRepository.GetByUsernameAsync(input.Username.ToLowerInvariant());
                 if (user == null)
-                    return Result<string>.Fail($"Invalid credentials.");
+                    return Result<RefreshTokenResponseDto>.Fail($"Invalid credentials.");
 
                 bool isVerify = _userRepository.VerifyUser(input.Password!, user!.PasswordHash!);
                 if (!isVerify)
-                    return Result<string>.Fail($"Invalid credentials.");
+                    return Result<RefreshTokenResponseDto>.Fail($"Invalid credentials.");
 
-                var token = await _userRepository.GetToken(user.Username!);
-                return Result<string>.Ok(token);
+                var secureToken = await _userRepository.GetToken(user.Username!);
+                var refreshTokenDto = new RefreshTokenResponseDto()
+                {
+                    AccessToken = secureToken.Token,
+                    RefreshToken = secureToken.refreshToken
+                };
+                return Result<RefreshTokenResponseDto>.Ok(refreshTokenDto);
             }
             catch (Exception ex)
             {
-                return Result<string>.Fail($"An error occurred: {ex.Message}");
+                return Result<RefreshTokenResponseDto>.Fail($"An error occurred: {ex.Message}");
             }
         }
     }

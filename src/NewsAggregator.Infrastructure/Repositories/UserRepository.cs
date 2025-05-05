@@ -9,12 +9,28 @@ namespace NewsAggregator.Infrastructure.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly IMongoCollection<UserDocument> _userCollection;
-        private readonly JwtTokenGenerator _tokenGenerator;
+        private readonly ITokenRepository _tokenRepository;
 
-        public UserRepository(IMongoDatabase database, JwtTokenGenerator tokenGenerator)
+        public UserRepository(IMongoDatabase database, ITokenRepository tokenRepository)
         {
             _userCollection = database.GetCollection<UserDocument>("Users");
-            _tokenGenerator = tokenGenerator;
+            _tokenRepository = tokenRepository;
+        }
+
+        public async Task<User?> GetByIdAsync(string id)
+        {
+            try
+            {
+                var user = await _userCollection.Find(u => u.Id == id).FirstOrDefaultAsync();
+                if (user is null)
+                    return null;
+
+                return user.ToDomain();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<User?> GetByUsernameAsync(string username)
@@ -52,9 +68,9 @@ namespace NewsAggregator.Infrastructure.Repositories
             return PasswordHasher.Verify(password, passwordHash);
         }
 
-        public async Task<string> GetToken(string username)
+        public async Task<(string Token, string refreshToken)> GetToken(string username)
         {
-            return await _tokenGenerator.GenerateToken(username);
+            return await _tokenRepository.GenerateToken(username);
         }
 
         public async Task<bool> IsUserExistWhenCreate(string username)

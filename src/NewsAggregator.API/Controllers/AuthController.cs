@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using NewsAggregator.Application.DTOs;
 using NewsAggregator.Application.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace NewsAggregator.API.Controllers
 {
@@ -9,10 +13,14 @@ namespace NewsAggregator.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserAppService _userAppService;
+        private readonly IConfiguration _config;
+        private readonly ITokenAppService _tokenAppService;
 
-        public AuthController(IUserAppService userAppService)
+        public AuthController(IUserAppService userAppService, IConfiguration config, ITokenAppService tokenAppService)
         {
             _userAppService = userAppService;
+            _config = config;
+            _tokenAppService = tokenAppService;
         }
 
         [HttpGet]
@@ -61,7 +69,7 @@ namespace NewsAggregator.API.Controllers
                 {
                     return BadRequest(result.ErrorMessage);
                 }
-                   
+
                 return CreatedAtAction(nameof(Get), new { username = result.Data!.Username }, result);
             }
             catch (Exception ex)
@@ -76,6 +84,45 @@ namespace NewsAggregator.API.Controllers
             try
             {
                 var result = await _userAppService.GetToken(user);
+                if (!result.Success)
+                    return BadRequest(result.ErrorMessage);
+
+                return Ok(new { result.Data });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost("refreshtoken")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto model)
+        {
+            try
+            {
+                string jwtkey = Environment.GetEnvironmentVariable("JWT_Key") ?? _config["Jwt:Key"]!;
+                var handler = new JwtSecurityTokenHandler();
+                var principal = handler.ValidateToken(model.AccessToken, new TokenValidationParameters
+                {
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = false, // Allow expired token
+                    ValidIssuer = _config["Jwt:Issuer"],
+                    ValidAudience = _config["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtkey!))
+                }, out _);
+
+                var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var request = new RefreshTokenRequestProcessDto()
+                {
+                    AccessToken = model.AccessToken,
+                    UserId = userId,
+                    RefreshToken = model.RefreshToken,
+                };
+                var result = await _tokenAppService.RefreshToken(request);
+
                 if (!result.Success)
                     return BadRequest(result.ErrorMessage);
 

@@ -229,7 +229,7 @@ namespace NewsAggregator.Application.Tests.Services
 
             _userRepoMock
               .Setup(x => x.GetToken("John"))
-              .ReturnsAsync("eIuhaihfruhaughuo.poiil.oiiejnvni988+9");
+              .ReturnsAsync(("eIuhaihfruhaughuo.poiil.oiiejnvni988+9", "refreshToken"));
 
             LoginUserDto input = new()
             {
@@ -253,7 +253,7 @@ namespace NewsAggregator.Application.Tests.Services
             var result = await _userAppService.GetToken(null!);
 
             result.Success.Should().BeFalse();
-            result.Data?.Should().Be("Login user can not be null.");
+            result.Data!.AccessToken.Should().Be("Login user can not be null.");
         }
 
         [Theory]
@@ -362,7 +362,7 @@ namespace NewsAggregator.Application.Tests.Services
 
             _userRepoMock
               .Setup(x => x.GetToken("John"))
-              .ReturnsAsync(string.Empty);
+              .ReturnsAsync((string.Empty, string.Empty));
 
             var dto = new LoginUserDto
             {
@@ -375,7 +375,7 @@ namespace NewsAggregator.Application.Tests.Services
 
             // Assert
             result.Success.Should().BeTrue();
-            result.Data.Should().Be(string.Empty);
+            result.Data!.AccessToken.Should().Be(string.Empty);
         }
 
         [Fact]

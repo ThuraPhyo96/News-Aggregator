@@ -7,6 +7,6 @@ namespace NewsAggregator.Application.Interfaces
     {
         Task<Result<UserDto>> GetByUsername(string username);
         Task<Result<UserDto>> CreateUser(CreateUserDto? input);
-        Task<Result<string>> GetToken(LoginUserDto input);
+        Task<Result<RefreshTokenResponseDto>> GetToken(LoginUserDto input);
     }
 }
