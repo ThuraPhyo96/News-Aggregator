@@ -2,6 +2,7 @@
 using Moq;
 using NewsAggregator.Application.DTOs;
 using NewsAggregator.Application.Helpers;
+using NewsAggregator.Application.Interfaces;
 using NewsAggregator.Application.Services;
 using NewsAggregator.Domain.Interfaces;
 using NewsAggregator.Domain.Models;
@@ -12,11 +13,13 @@ namespace NewsAggregator.Application.Tests.Services
     {
         private readonly Mock<INewsRepository> _newsRepoMock;
         private readonly NewsAppService _newsAppService;
+        private readonly Mock<IArticleEventPublisher> _articleEventPublisherMock;
 
         public NewsAppServiceTests()
         {
             _newsRepoMock = new Mock<INewsRepository>();
-            _newsAppService = new NewsAppService(_newsRepoMock.Object);
+            _articleEventPublisherMock = new Mock<IArticleEventPublisher>();
+            _newsAppService = new NewsAppService(_newsRepoMock.Object, _articleEventPublisherMock.Object);
         }
 
         [Fact]
