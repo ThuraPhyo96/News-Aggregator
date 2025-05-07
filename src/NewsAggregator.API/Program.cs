@@ -9,6 +9,8 @@ using NewsAggregator.Application.Interfaces;
 using NewsAggregator.Application.Services;
 using NewsAggregator.Infrastructure;
 using NewsAggregator.Infrastructure.Data;
+using NewsAggregator.Infrastructure.Email;
+using NewsAggregator.Infrastructure.Messaging;
 using Serilog;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -40,6 +42,8 @@ public partial class Program
             builder.Services.AddScoped<IUserAppService, UserAppService>();
             builder.Services.AddScoped<ITokenAppService, TokenAppService>();
             builder.Services.AddScoped<NewsStorageAppService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IArticleEventPublisher, ArticleEventPublisher>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
