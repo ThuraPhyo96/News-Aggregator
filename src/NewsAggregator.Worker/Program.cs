@@ -17,5 +17,6 @@ var host = Host.CreateDefaultBuilder(args)
 
 Console.WriteLine("Starting ArticlePublishedConsumer...");
 
-var consumer = host.Services.GetRequiredService<ArticlePublishedConsumer>();
+using var scope = host.Services.CreateScope();
+var consumer = scope.ServiceProvider.GetRequiredService<ArticlePublishedConsumer>();
 consumer.Start();
