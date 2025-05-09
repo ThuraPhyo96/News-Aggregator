@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using NewsAggregator.Domain.Events;
 using NewsAggregator.Application.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace NewsAggregator.Worker.Services
 {
@@ -11,15 +12,22 @@ namespace NewsAggregator.Worker.Services
     {
         private readonly IEmailService _emailService;
         private readonly string _queueName = "news-published-queue";
+        private readonly IConfiguration _config;
 
-        public ArticlePublishedConsumer(IEmailService emailService)
+        public ArticlePublishedConsumer(IEmailService emailService, IConfiguration config)
         {
             _emailService = emailService;
+            _config = config;
         }
 
         public void Start()
         {
-            var factory = new ConnectionFactory { HostName = "localhost" };
+            var uri = Environment.GetEnvironmentVariable("RABBITMQ_URI")! ?? _config["RabbitMq:Uri"];
+            var factory = new ConnectionFactory
+            {
+                Uri = new Uri(uri!),
+            };
+
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 

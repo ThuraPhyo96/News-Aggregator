@@ -1,4 +1,5 @@
-﻿using NewsAggregator.Application.Interfaces;
+﻿using Microsoft.Extensions.Configuration;
+using NewsAggregator.Application.Interfaces;
 using NewsAggregator.Domain.Events;
 using RabbitMQ.Client;
 using System.Text;
@@ -9,10 +10,20 @@ namespace NewsAggregator.Infrastructure.Messaging
     public class ArticleEventPublisher : IArticleEventPublisher
     {
         private readonly string _queueName = "news-published-queue";
+        private readonly IConfiguration _config;
+
+        public ArticleEventPublisher(IConfiguration config)
+        {
+            _config = config;
+        }
 
         public void PublishArticlePublished(ArticlePublishedEvent newsEvent)
         {
-            var factory = new ConnectionFactory { HostName = "localhost" };
+            var uri = Environment.GetEnvironmentVariable("RABBITMQ_URI")! ?? _config["RabbitMq:Uri"];
+            var factory = new ConnectionFactory
+            {
+                Uri = new Uri(uri!),
+            };
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
