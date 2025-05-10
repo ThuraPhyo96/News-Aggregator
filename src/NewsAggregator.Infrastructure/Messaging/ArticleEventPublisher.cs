@@ -27,8 +27,6 @@ namespace NewsAggregator.Infrastructure.Messaging
             using var connection = factory.CreateConnection();
             using var channel = connection.CreateModel();
 
-            channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false);
-
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(newsEvent));
             var props = channel.CreateBasicProperties();
             props.Persistent = true;
