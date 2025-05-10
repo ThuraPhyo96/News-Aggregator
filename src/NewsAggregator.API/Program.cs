@@ -44,6 +44,7 @@ public partial class Program
             builder.Services.AddScoped<NewsStorageAppService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IArticleEventPublisher, ArticleEventPublisher>();
+            builder.Services.AddHostedService<ArticleConsumerService>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
