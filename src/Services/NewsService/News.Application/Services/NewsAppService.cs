@@ -10,10 +10,12 @@ namespace News.Application.Services
     public class NewsAppService : INewsAppService
     {
         private readonly INewsRepository _newsRepository;
+        private readonly IArticleEventPublisher _articleEventPublisher;
 
-        public NewsAppService(INewsRepository newsRepository)
+        public NewsAppService(INewsRepository newsRepository, IArticleEventPublisher articleEventPublisher)
         {
             _newsRepository = newsRepository;
+            _articleEventPublisher = articleEventPublisher;
         }
 
         public async Task<List<ArticleDto>> GetAllNews()
@@ -67,6 +69,9 @@ namespace News.Application.Services
                     return Result<ArticleDto>.Fail("Failed to save article");
 
                 var dto = ArticleMapper.ToDto(returnArticle);
+
+                var articlePublishedEvent = ArticleMapper.ToEvent(returnArticle);
+                _articleEventPublisher.PublishArticlePublished(articlePublishedEvent!);
 
                 return Result<ArticleDto>.Ok(dto!);
             }

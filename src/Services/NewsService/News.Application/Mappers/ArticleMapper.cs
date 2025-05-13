@@ -1,5 +1,6 @@
 ﻿using News.Application.DTOs;
 using News.Domain.Models;
+using NewsAggregator.Contracts.Events;
 
 namespace News.Application.Mappers
 {
@@ -62,6 +63,19 @@ namespace News.Application.Mappers
                 article.UrlToImage,
                 article.PublishedAt,
                 article.Content);
+        }
+
+        public static ArticlePublishedEvent? ToEvent(Article article)
+        {
+            if (article == null) return null;
+
+            return new ArticlePublishedEvent
+            {
+                Id = article.Id,
+                Title = article.Title,
+                Description = article.Description,
+                PublishedAt = article.PublishedAt!.Value
+            };
         }
     }
 }

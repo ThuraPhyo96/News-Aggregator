@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using News.Application.Interfaces;
 using News.Application.Services;
 using News.Infrastructure;
+using Notification.Infrastructure.Messaging;
 using Serilog;
 using System.Threading.RateLimiting;
 
@@ -30,11 +31,11 @@ public partial class Program
             builder.Services.AddNewsInfrastructureServices(builder.Configuration);
             builder.Services.AddScoped<INewsAppService, NewsAppService>();
             builder.Services.AddScoped<NewsStorageAppService>();
-
+            builder.Services.AddScoped<IArticleEventPublisher, ArticleEventPublisher>();
 
             builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddEndpointsApiExplorer();
+            //builder.Services.AddSwaggerGen();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
