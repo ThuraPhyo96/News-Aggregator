@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Users.API.Authorization
+namespace NewsAggregator.API.Authorization
 {
     // A simple custom attribute that ties a controller action to a permission policy.
     public class HasPermissionAttribute : AuthorizeAttribute

@@ -1,9 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using News.API.Authorization;
 using News.Application.Interfaces;
 using News.Application.Services;
 using News.Infrastructure;
+using NewsAggregator.API.Authorization;
 using Notification.Infrastructure.Messaging;
 using Serilog;
+using System.Text;
 using System.Threading.RateLimiting;
 
 public partial class Program
@@ -34,13 +40,58 @@ public partial class Program
             builder.Services.AddScoped<IArticleEventPublisher, ArticleEventPublisher>();
 
             builder.Services.AddControllers();
-            //builder.Services.AddEndpointsApiExplorer();
-            //builder.Services.AddSwaggerGen();
+
+            builder.Services.AddAuthentication("Bearer")
+            .AddJwtBearer("Bearer", options =>
+            {
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],          
+                    ValidAudience = builder.Configuration["Jwt:Audience"],      
+                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            Environment.GetEnvironmentVariable("JWT_Key") ?? builder.Configuration["Jwt:Key"]!
+                        )
+                    )
+                };
+            });
+            builder.Services.AddAuthorization();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new() { Title = "News Aggregator API", Version = "v1" });
+
+                // Add JWT bearer auth definition
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter 'Bearer' followed by your JWT token.\nExample: Bearer eyJhbGciOiJIUzI1NiIs..."
+                });
+
+                // Add security requirement to use the scheme globally
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
             builder.Services.AddMemoryCache();
@@ -76,13 +127,25 @@ public partial class Program
                 });
             });
 
+            builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            builder.Services.AddSingleton<IAuthorizationPolicyProvider>(sp =>
+                new DynamicPermissionPolicyProvider(
+                    sp,
+                    sp.GetRequiredService<IOptions<AuthorizationOptions>>(),
+                    sp.GetRequiredService<IMemoryCache>()
+                )
+            );
+
             var app = builder.Build();
             app.UseSerilogRequestLogging();
 
             if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "NewsAPI v1");
+                });
             }
 
             app.UseRouting();

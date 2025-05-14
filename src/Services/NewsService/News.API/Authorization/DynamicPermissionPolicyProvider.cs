@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Users.Domain.Authorization;
+using News.Domain.Interfaces;
+using NewsAggregator.API.Authorization;
 
-namespace Users.API.Authorization
+namespace News.API.Authorization
 {
     public class DynamicPermissionPolicyProvider : IAuthorizationPolicyProvider
     {
@@ -32,7 +33,7 @@ namespace Users.API.Authorization
                     using var scope = _serviceProvider.CreateScope();
                     var permissionRepo = scope.ServiceProvider.GetRequiredService<IPermissionRepository>();
 
-                    var fetchedPermissions = await permissionRepo.GetAllPermissionClaimsAsync();
+                    var fetchedPermissions = await permissionRepo.GetAllPermissionsAsync();
                     permissions = fetchedPermissions!.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions()

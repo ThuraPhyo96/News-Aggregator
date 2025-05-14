@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Users.API.Authorization
+namespace NewsAggregator.API.Authorization
 {
     // This is what actually checks whether the current user has the permission claim.
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>

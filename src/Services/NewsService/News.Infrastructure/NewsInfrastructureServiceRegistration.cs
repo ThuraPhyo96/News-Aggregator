@@ -33,6 +33,12 @@ namespace News.Infrastructure
             })
             .AddPolicyHandler((services, _) => HttpClientPolicies.GetResiliencePolicy<NewsApiClient>(services.GetRequiredService<ILogger<NewsApiClient>>()));
 
+            var usersAPI = Environment.GetEnvironmentVariable("UsersAPI_URI") ?? configuration["Services:UsersAPI"];
+            services.AddHttpClient<IPermissionRepository, HttpPermissionRepository>(client =>
+            {
+                client.BaseAddress = new Uri(usersAPI!);
+            });
+
             // Register the client class for DI
             services.AddScoped<NewsApiClient>();
 

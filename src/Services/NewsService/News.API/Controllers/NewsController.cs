@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using News.Application.DTOs;
 using News.Application.Interfaces;
+using NewsAggregator.API.Authorization;
 
 namespace News.API.Controllers
 {
+    [Authorize]
     [EnableRateLimiting("fixed")]
     [Route("api/news")]
     [ApiController]
@@ -22,6 +25,7 @@ namespace News.API.Controllers
         /// </summary>
         /// GET /api/news
         [HttpGet]
+        [HasPermission("articles.read")]
         public async Task<IActionResult> GetAllNews()
         {
             try

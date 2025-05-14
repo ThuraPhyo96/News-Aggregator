@@ -1,40 +1,56 @@
 {
   "Routes": [
     {
-      "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamPathTemplate": "/api/news/{everything}",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5098
+          "Port": 44334
         }
       ],
-      "UpstreamPathTemplate": "/news/swagger/{everything}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamPathTemplate": "/api/news/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "news",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
-      "DownstreamPathTemplate": "/swagger/v1/swagger.json",
-      "DownstreamScheme": "http",
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5098
+          "Port": 44326
         }
       ],
-      "UpstreamPathTemplate": "/news/swagger/v1/swagger.json",
-      "UpstreamHttpMethod": [ "GET" ]
+      "UpstreamPathTemplate": "/api/auth/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "users"
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "news",
+      "Config": [
+        {
+          "Name": "NewsAPI",
+          "Version": "v1",
+          "Url": "https://localhost:44334/swagger/v1/swagger.json"
+        }
+      ]
     },
     {
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
+      "Key": "users",
+      "Config": [
         {
-          "Host": "localhost",
-          "Port": 5098
+          "Name": "UserAPI",
+          "Version": "v1",
+          "Url": "https://localhost:44326/swagger/v1/swagger.json"
         }
-      ],
-      "UpstreamPathTemplate": "/news/api/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+      ]
     }
   ],
   "GlobalConfiguration": {

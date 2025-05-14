@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
-using Users.API.Authorization;
 using Users.API.Middleware;
 using Users.Application.Interfaces;
 using Users.Application.Services;
@@ -36,6 +32,7 @@ public partial class Program
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddScoped<IUserAppService, UserAppService>();
             builder.Services.AddScoped<ITokenAppService, TokenAppService>();
+            builder.Services.AddScoped<IPermissionAppService, PermissionAppService>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -46,16 +43,6 @@ public partial class Program
             {
                 options.SwaggerDoc("v1", new() { Title = "Users Management API", Version = "v1" });
             });
-
-            builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-            builder.Services.AddSingleton<IAuthorizationPolicyProvider>(sp =>
-                new DynamicPermissionPolicyProvider(
-                    sp,
-                    sp.GetRequiredService<IOptions<AuthorizationOptions>>(),
-                    sp.GetRequiredService<IMemoryCache>()
-                )
-            );
-            builder.Services.AddMemoryCache();
 
             // Add Rate Limiting services
             builder.Services.AddRateLimiter(options =>

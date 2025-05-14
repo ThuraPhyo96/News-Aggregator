@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Users.API.Authorization
+namespace NewsAggregator.API.Authorization
 {
     // Defines what a permission requirement is.
     public class PermissionRequirement : IAuthorizationRequirement
