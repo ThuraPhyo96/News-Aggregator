@@ -8,26 +8,29 @@ using System.Text.Json;
 using NewsAggregator.Domain.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using DnsClient.Internal;
+using NewsAggregator.Infrastructure.Helpers;
 
 namespace NewsAggregator.Infrastructure.Messaging
 {
     public class ArticleConsumerService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly string _queueName = "news-published-queue";
+        private readonly string _queueName;
         private readonly IConfiguration _config;
         private readonly ILogger<ArticleConsumerService> _logger;
         private IConnection? _connection;
         private IModel? _channel;
-        private readonly string _retryQueue1 = "retry-queue-1";
-        private readonly string _retryQueue2 = "retry-queue-2";
-        private readonly string _deadLetterQueue = "dead-letter-queue";
+        private readonly Microsoft.Extensions.Logging.ILoggerFactory _loggerFactory;
 
-        public ArticleConsumerService(IServiceScopeFactory scopeFactory, IConfiguration config, ILogger<ArticleConsumerService> logger)
+        public ArticleConsumerService(IServiceScopeFactory scopeFactory, IConfiguration config, ILogger<ArticleConsumerService> logger, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
         {
             _scopeFactory = scopeFactory;
             _config = config;
             _logger = logger;
+            _loggerFactory = loggerFactory;
+            var env = Environment.GetEnvironmentVariable("RABBITMQ_ENV")! ?? _config["RabbitMq:Environment"];
+            _queueName = RabbitMqQueueNames.NewsPublished(env!);
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -39,35 +42,12 @@ namespace NewsAggregator.Infrastructure.Messaging
                 Uri = new Uri(uri!),
                 DispatchConsumersAsync = true
             };
-
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 
-            // 1. Final dead-letter queue
-            _channel.QueueDeclare(_deadLetterQueue, durable: true, exclusive: false, autoDelete: false);
-
-            // 2. Retry queue 2 → goes to dead-letter-queue after failure
-            _channel.QueueDeclare(_retryQueue2, durable: true, exclusive: false, autoDelete: false, arguments: new Dictionary<string, object>
-            {
-                ["x-dead-letter-exchange"] = "",
-                ["x-dead-letter-routing-key"] = _deadLetterQueue,
-                ["x-message-ttl"] = 10000 // 10s
-            });
-
-            // 3. Retry queue 1 → goes to retry-queue-2
-            _channel.QueueDeclare(_retryQueue1, durable: true, exclusive: false, autoDelete: false, arguments: new Dictionary<string, object>
-            {
-                ["x-dead-letter-exchange"] = "",
-                ["x-dead-letter-routing-key"] = _retryQueue2,
-                ["x-message-ttl"] = 10000 // 10s
-            });
-
-            // 4. Main queue → DLX to retry-queue-1
-            _channel.QueueDeclare(_queueName, durable: true, exclusive: false, autoDelete: false, arguments: new Dictionary<string, object>
-            {
-                ["x-dead-letter-exchange"] = "",
-                ["x-dead-letter-routing-key"] = _retryQueue1
-            });
+            var configuratorLogger = _loggerFactory.CreateLogger<RabbitMqQueueConfigurator>();
+            var configurator = new RabbitMqQueueConfigurator(_channel, configuratorLogger, _config);
+            configurator.DeclareAllQueues();
 
             _logger.LogInformation("RabbitMQ connection established and queues declared.");
             return base.StartAsync(cancellationToken);
