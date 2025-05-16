@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   rabbitmq:
@@ -9,3 +8,47 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+    ports:
+      - "44349:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - news-api
+      - users-api
+      - notification-api
+
+  news-api:
+    build:
+      context: .
+      dockerfile: src/Services/NewsService/News.API/Dockerfile
+    ports:
+      - "44334:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+  users-api:
+    build:
+      context: .
+      dockerfile: src/Services/UsersService/Users.API/Dockerfile
+    ports:
+      - "44326:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+  notification-api:
+    build:
+      context: .
+      dockerfile: src/Services/NotificationService/Notification.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+    - rabbitmq
