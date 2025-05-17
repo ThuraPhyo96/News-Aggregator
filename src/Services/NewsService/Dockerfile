@@ -2,8 +2,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy everything from the repo
-COPY ../../../../ ./
+# Go 3 levels up to reach repo root
+COPY ../../../.. .
 
 # Restore and publish
 RUN dotnet restore "News Aggregator.sln"
