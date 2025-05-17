@@ -6,8 +6,8 @@ WORKDIR /app
 COPY . .
 
 # Restore and publish
-RUN dotnet restore "News.API.csproj"
-RUN dotnet publish "News.API.csproj" -c Release -o /app/publish --no-restore
+RUN dotnet restore "News Aggregator.sln"
+RUN dotnet publish "src/Services/NewsService/News.API/News.API.csproj" -c Release -o /app/publish --no-restore
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
