@@ -2,9 +2,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy solution and all source folders
-COPY . .
-RUN dotnet restore "News Aggregator.sln"
+# Copy everything from the full repo root (go up 4 levels)
+COPY ../../../../.. .
+
+RUN dotnet restore "src/Services/UsersService/Users.API/Users.API.csproj"
 RUN dotnet publish "src/Services/UsersService/Users.API/Users.API.csproj" -c Release -o /app/publish --no-restore
 
 # Stage 2: Runtime
