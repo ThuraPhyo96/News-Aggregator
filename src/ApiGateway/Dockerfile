@@ -4,13 +4,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 # Set the working directory
 WORKDIR /app
 
-# Copy solution and all project files
-COPY . .
+# Copy everything from the full repo root (go up 2 levels)
+COPY ../../.. .
 
-# Restore dependencies
-RUN dotnet restore "News Aggregator.sln"
-
-# Publish the ApiGateway project
+# Restore and publish only the project
+RUN dotnet restore "src/ApiGateway/ApiGateway.csproj"
 RUN dotnet publish "src/ApiGateway/ApiGateway.csproj" -c Release -o /app/publish --no-restore
 
 # Runtime Stage: Use the official ASP.NET runtime image
