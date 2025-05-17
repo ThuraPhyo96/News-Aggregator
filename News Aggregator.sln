@@ -33,6 +33,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{206EC003-493E-4D32-B75D-DB880AE182E3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewsService", "NewsService", "{74E31481-C080-42B4-A177-C7215779B600}"
+	ProjectSection(SolutionItems) = preProject
+		src\Services\NotificationService\Notification.API\Dockerfile = src\Services\NotificationService\Notification.API\Dockerfile
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "News.API", "src\Services\NewsService\News.API\News.API.csproj", "{061F584A-227D-402B-967E-53CB1309F720}"
 EndProject
