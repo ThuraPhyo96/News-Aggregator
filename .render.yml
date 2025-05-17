@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: news-api
+    env: docker
+    rootDir: .
+    dockerfilePath: src/Services/NewsService/News.API/Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
