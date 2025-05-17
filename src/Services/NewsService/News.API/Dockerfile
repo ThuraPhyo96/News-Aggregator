@@ -3,10 +3,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /src
 
-# Go back up to root of the repo (3 levels up from News.API)
-COPY ../../../.. .
+# Copy the entire solution (from root to current location is 4 levels up)
+COPY ../../../../ .
 
-# Restore and publish
+# Restore and publish with correct paths
 RUN dotnet restore "News Aggregator.sln"
 RUN dotnet publish "src/Services/NewsService/News.API/News.API.csproj" -c Release -o /app/publish --no-restore
 
