@@ -1,4 +1,3 @@
----
 services:
   - type: web
     name: news-api
@@ -15,6 +14,16 @@ services:
     env: docker
     rootDir: .
     dockerfilePath: src/Services/UsersService/Users.API/Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+
+  - type: web
+    name: notification-api
+    env: docker
+    rootDir: .
+    dockerfilePath: src/Services/NotificationService/Notification.API/Dockerfile
     plan: free
     envVars:
       - key: ASPNETCORE_ENVIRONMENT

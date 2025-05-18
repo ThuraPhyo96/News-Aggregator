@@ -1,26 +1,26 @@
-# Stage 1: Build
+# Use the official .NET SDK image for building
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-WORKDIR /src
+# Set working directory
+WORKDIR /app
 
-# 1. First copy ALL required project files for restore
-COPY ["src/Shared/NewsAggregator.Contracts/NewsAggregator.Contracts.csproj", "src/Shared/NewsAggregator.Contracts/"]
-COPY ["src/Services/NewsService/News.API/News.API.csproj", "src/Services/NewsService/News.API/"]
-COPY ["src/Services/NewsService/News.Application/News.Application.csproj", "src/Services/NewsService/News.Application/"]
-COPY ["src/Services/NewsService/News.Domain/News.Domain.csproj", "src/Services/NewsService/News.Domain/"] 
-COPY ["src/Services/NewsService/News.Infrastructure/News.Infrastructure.csproj", "src/Services/NewsService/News.Infrastructure/"]
-
-# 2. Restore dependencies
-RUN dotnet restore "src/Services/NewsService/News.API/News.API.csproj"
-
-# 3. Now copy everything else (simplified path)
+# Copy solution and all source folders
 COPY . .
 
-# 4. Publish the API project
+# Restore dependencies
+RUN dotnet restore "News Aggregator.sln"
+
+# Build the app
 RUN dotnet publish "src/Services/NewsService/News.API/News.API.csproj" -c Release -o /app/publish --no-restore
 
-# Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Use ASP.NET Core runtime image for running
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# Set working directory
 WORKDIR /app
+
+# Copy the published output from the build stage
 COPY --from=build /app/publish .
+
+EXPOSE 80
 ENTRYPOINT ["dotnet", "News.API.dll"]
