@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /src/NewsAggregator.Worker/appsettings.Development.json
 /src/NewsAggregator.API/appsettings.Development.json
+/src/Services/NewsService/News.API/appsettings.Development.json
+/src/Services/NotificationService/Notification.API/appsettings.Development.json

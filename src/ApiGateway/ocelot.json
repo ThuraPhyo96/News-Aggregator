@@ -5,8 +5,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "news-api",
-          "Port": 80
+          "Host": "news-api-dkgf.onrender.com",
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/api/news/{everything}",
@@ -22,8 +22,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "users-api",
-          "Port": 80
+          "Host": "users-api-pwyq.onrender.com",
+          "Port": 443
         }
       ],
       "UpstreamPathTemplate": "/api/auth/{everything}",
@@ -38,7 +38,7 @@
         {
           "Name": "NewsAPI",
           "Version": "v1",
-          "Url": "http://news-api/swagger/v1/swagger.json"
+          "Url": "https://news-api-dkgf.onrender.com/swagger/v1/swagger.json"
         }
       ]
     },
@@ -48,7 +48,7 @@
         {
           "Name": "UserAPI",
           "Version": "v1",
-          "Url": "http://users-api/swagger/v1/swagger.json"
+          "Url": "https://users-api-pwyq.onrender.com/swagger/v1/swagger.json"
         }
       ]
     }

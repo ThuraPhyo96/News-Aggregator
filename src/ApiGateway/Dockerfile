@@ -1,27 +1,26 @@
-# Build Stage: Use the official .NET SDK image to build the application
+# Use the official .NET SDK image for building
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy everything from the full repo root (go up 2 levels)
-COPY ../../.. .
+# Copy solution and all source folders
+COPY . .
 
-# Restore and publish only the project
-RUN dotnet restore "src/ApiGateway/ApiGateway.csproj"
+# Restore dependencies
+RUN dotnet restore "News Aggregator.sln"
+
+# Build the app
 RUN dotnet publish "src/ApiGateway/ApiGateway.csproj" -c Release -o /app/publish --no-restore
 
-# Runtime Stage: Use the official ASP.NET runtime image
+# Use ASP.NET Core runtime image for running
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy published files from build stage
+# Copy the published output from the build stage
 COPY --from=build /app/publish .
 
-# Expose default port 
 EXPOSE 80
-
-# Run the API Gateway
 ENTRYPOINT ["dotnet", "ApiGateway.dll"]

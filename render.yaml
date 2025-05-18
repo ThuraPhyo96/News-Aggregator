@@ -28,3 +28,13 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+
+    - type: web
+    name: api-gateway
+    env: docker
+    rootDir: .
+    dockerfilePath: src/ApiGateway/Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
