@@ -9,3 +9,13 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+
+  - type: web
+    name: users-api
+    env: docker
+    rootDir: .
+    dockerfilePath: src/Services/UsersService/Users.API/Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production

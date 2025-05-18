@@ -1,17 +1,25 @@
-# Stage 1: Build
+# Use the official .NET SDK image for building
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Set working directory
 WORKDIR /app
 
-# Copy everything from the full repo root (go up 4 levels)
-COPY ../../../../.. .
+# Copy solution and all source folders
+COPY . .
 
-RUN dotnet restore "src/Services/UsersService/Users.API/Users.API.csproj"
+# Restore dependencies
+RUN dotnet restore "News Aggregator.sln"
+
+# Build the app
 RUN dotnet publish "src/Services/UsersService/Users.API/Users.API.csproj" -c Release -o /app/publish --no-restore
 
-# Stage 2: Runtime
+# Use ASP.NET Core runtime image for running
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# Set working directory
 WORKDIR /app
 
+# Copy the published output from the build stage
 COPY --from=build /app/publish .
 
 EXPOSE 80
