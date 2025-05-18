@@ -29,7 +29,7 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
 
-    - type: web
+  - type: web
     name: api-gateway
     env: docker
     rootDir: .
