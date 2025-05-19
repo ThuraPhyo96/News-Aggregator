@@ -1,23 +1,19 @@
 using Notification.Application.Interfaces;
-using Notification.Infrastructure.Messaging;
 using Notification.Infrastructure.Email;
+using Notification.Infrastructure.Messaging;
 
+var builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine($"Environment: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
+// Add configuration files
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
-Host.CreateDefaultBuilder(args)
-     .ConfigureAppConfiguration((hostingContext, config) =>
-     {
-         config.AddJsonFile("appsettings.json", optional: false)
-               .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true);
-     })
-    .ConfigureServices((context, services) =>
-    {
-        // Register your services here
-        services.AddScoped<IEmailService, EmailService>();
+// Register services
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddHostedService<ArticleConsumerService>();
 
-        // Register background service
-        services.AddHostedService<ArticleConsumerService>();
-    })
-    .Build()
-    .Run();
+// Dummy web server to bind port (needed for Render free tier)
+var app = builder.Build();
+app.MapGet("/", () => "Notification API (Background Worker) is running.");
+app.Run();

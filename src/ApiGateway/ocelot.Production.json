@@ -1,0 +1,59 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/news/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "news-api-dkgf.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/news/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "news",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/auth/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "users-api-pwyq.onrender.com",
+          "Port": 443
+        }
+      ],
+      "UpstreamPathTemplate": "/api/auth/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "SwaggerKey": "users"
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "news",
+      "Config": [
+        {
+          "Name": "NewsAPI",
+          "Version": "v1",
+          "Url": "https://news-api-dkgf.onrender.com/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "users",
+      "Config": [
+        {
+          "Name": "UserAPI",
+          "Version": "v1",
+          "Url": "https://users-api-pwyq.onrender.com/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://api-gateway-lym5.onrender.com"
+  }
+}
